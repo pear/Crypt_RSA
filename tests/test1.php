@@ -21,7 +21,7 @@
  * @author     Alexander Valyalkin <valyala@gmail.com>
  * @copyright  2005, 2006 Alexander Valyalkin
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    1.1.0
+ * @version    1.2.0b
  * @link       http://pear.php.net/package/Crypt_RSA
  */
 
@@ -44,8 +44,8 @@ require_once 'Crypt/RSA.php';
     See contents of /RSA/MathClasses folder for examples.
     BigInt is much faster than BCMath.
 */
-define('MATH_LIBRARY', 'BigInt');
 //define('MATH_LIBRARY', 'GMP');
+//define('MATH_LIBRARY', 'BigInt');
 //define('MATH_LIBRARY', 'BCMath');
 
 $errors = array();
@@ -65,8 +65,8 @@ if ($key_length != 128) {
     $errors[] = "wrong result returned from Crypt_RSA_KeyPair::getKeyLength() function";
 }
 
-// check Crypt_RSA_KeyPair::fromPEMString() function
-$str = "
+// check fromPEMString() and toPEMString() functions of Crypt_RSA_KeyPair class
+$str_in = "
 -----BEGIN RSA PRIVATE KEY-----
 MIIBPAIBAAJBAKSLT0KZTXYxHr6U/9GYBbnV8vxGkIleDE4aiVMRxuofOjcHDCoI
 qsrVjgP78BrVqWMAAeQ9i0dXxz9zhy0+h7MCAwEAAQJBAI6OL1Yo0Uaj2doN5vDk
@@ -78,14 +78,14 @@ vLq0MTN4jkO2DOC4qxvKc1l4383nks1g/cljSO/y0pw=
 -----END RSA PRIVATE KEY-----
 ";
 
-$keypair = Crypt_RSA_KeyPair::fromPEMString($str, MATH_LIBRARY, 'check_error');
+$key_pair = Crypt_RSA_KeyPair::fromPEMString($str_in, MATH_LIBRARY, 'check_error');
 
-$public_key = $keypair->getPublicKey();
-$private_key = $keypair->getPrivateKey();
-$key_length = $keypair->getKeyLength();
+$public_key = $key_pair->getPublicKey();
+$private_key = $key_pair->getPrivateKey();
+$key_length = $key_pair->getKeyLength();
 
 if ($key_length != 512) {
-    $errors[] = "incorrect key length retrieved from PEM file";
+    $errors[] = "incorrect key length retrieved from PEM string";
 }
 
 $rsa_obj = new Crypt_RSA(array(), MATH_LIBRARY, 'check_error');
@@ -98,8 +98,23 @@ if ($dec_text != $text) {
     $errors[] = "decrypted text differs from encrypted text in Crypt_RSA_KeyPair::fromPEMString() check";
 }
 
-// try to generate 256-bit key pair
+$str_out = $key_pair->toPEMString();
+
+$str_in = str_replace($str_in, array("\r", "\n"), '');
+$str_out = str_replace($str_out, array("\r", "\n"), '');
+if ($str_in != $str_out) {
+    $errors[] = "PEM strings handling seems to be broken";
+}
+
+// try to generate 256-bit keypair and convert it to PEM string,
+// then convert this string to another keypair and compare them
 $key_pair->generate(256);
+
+$str1 = $key_pair->toPEMString();
+$key_pair2 = $key_pair->fromPEMString($str1);
+if (!$key_pair->isEqual($key_pair2) || !$key_pair2->isEqual($key_pair)) {
+    $errors[] = "RSA_KeyPair::isEqual() is broken";
+}
 
 ///////////////////////////////////////////////
 // test all functionality of Crypt_RSA_Key class

@@ -21,7 +21,7 @@
  * @author     Alexander Valyalkin <valyala@gmail.com>
  * @copyright  2005, 2006 Alexander Valyalkin
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    1.1.0
+ * @version    1.2.0b
  * @link       http://pear.php.net/package/Crypt_RSA
  */
 

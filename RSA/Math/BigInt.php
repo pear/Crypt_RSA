@@ -18,7 +18,7 @@
  * @author     Alexander Valyalkin <valyala@gmail.com>
  * @copyright  2005, 2006 Alexander Valyalkin
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    1.1.0
+ * @version    1.2.0b
  * @link       http://pear.php.net/package/Crypt_RSA
  */
 
@@ -134,6 +134,19 @@ class Crypt_RSA_Math_BigInt
     }
 
     /**
+     * Calculates $num1 % $num2
+     *
+     * @param string $num1
+     * @param string $num2
+     * @return string
+     * @access public
+     */
+    function mod($num1, $num2)
+    {
+        return bi_mod($num1, $num2);
+    }
+
+    /**
      * Compares abs($num1) to abs($num2).
      * Returns:
      *   -1, if abs($num1) < abs($num2)
@@ -151,6 +164,19 @@ class Crypt_RSA_Math_BigInt
     }
 
     /**
+     * Tests $num on primality. Returns true, if $num is strong pseudoprime.
+     * Else returns false.
+     *
+     * @param string $num
+     * @return bool
+     * @access private
+     */
+    function isPrime($num)
+    {
+        return bi_is_prime($num) ? true : false;
+    }
+
+    /**
      * Generates prime number with length $bits_cnt
      * using $random_generator as random generator function.
      *
@@ -160,11 +186,22 @@ class Crypt_RSA_Math_BigInt
      */
     function getPrime($bits_cnt, $random_generator)
     {
+        $bytes_n = intval($bits_cnt / 8);
+        $bits_n = $bits_cnt % 8;
         do {
-            $num = bi_rand($bits_cnt, $random_generator);
-            bi_set_bit($num, $bits_cnt - 1);
+            $str = '';
+            for ($i = 0; $i < $bytes_n; $i++) {
+                $str .= chr(call_user_func($random_generator) & 0xff);
+            }
+            $n = call_user_func($random_generator) & 0xff;
+            $n |= 0x80;
+            $n >>= 8 - $bits_n;
+            $str .= chr($n);
+            $num = $this->bin2int($str);
+
+            // search for the next closest prime number after [$num]
             $num = bi_next_prime($num);
-        } while (bi_bit_len($num) != $bits_cnt);
+        } while ($this->bitLen($num) != $bits_cnt);
         return $num;
     }
 

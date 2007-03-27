@@ -18,7 +18,7 @@
  * @author     Alexander Valyalkin <valyala@gmail.com>
  * @copyright  2005, 2006 Alexander Valyalkin
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    1.1.0
+ * @version    1.2.0b
  * @link       http://pear.php.net/package/Crypt_RSA
  */
 
@@ -156,7 +156,7 @@ class Crypt_RSA_Key extends Crypt_RSA_ErrorHandler
         $this->setErrorHandler($error_handler);
         // try to load math wrapper $wrapper_name
         $obj = &Crypt_RSA_MathLoader::loadWrapper($wrapper_name);
-        if (PEAR::isError($obj)) {
+        if ($this->isError($obj)) {
             // error during loading of math wrapper
             $this->pushError($obj); // push error object into error list
             return;
@@ -167,8 +167,7 @@ class Crypt_RSA_Key extends Crypt_RSA_ErrorHandler
         $this->_exp = $exp;
 
         if (!in_array($key_type, array('private', 'public'))) {
-            $obj = PEAR::raiseError('invalid key type. It must be private or public', CRYPT_RSA_ERROR_WRONG_KEY_TYPE);
-            $this->pushError($obj); // push error object into error list
+            $this->pushError('invalid key type. It must be private or public', CRYPT_RSA_ERROR_WRONG_KEY_TYPE);
             return;
         }
         $this->_key_type = $key_type;
@@ -178,8 +177,7 @@ class Crypt_RSA_Key extends Crypt_RSA_ErrorHandler
         $exp_num = $this->_math_obj->bin2int($this->_exp);
 
         if ($this->_math_obj->cmpAbs($mod_num, $exp_num) <= 0) {
-            $obj = PEAR::raiseError('modulus must be greater than exponent', CRYPT_RSA_ERROR_EXP_GE_MOD);
-            $this->pushError($obj); // push error object into error list
+            $this->pushError('modulus must be greater than exponent', CRYPT_RSA_ERROR_EXP_GE_MOD);
             return;
         }
         // determine key length

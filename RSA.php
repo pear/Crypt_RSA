@@ -18,7 +18,7 @@
  * @author     Alexander Valyalkin <valyala@gmail.com>
  * @copyright  2005, 2006 Alexander Valyalkin
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    1.1.0
+ * @version    1.2.0b
  * @link       http://pear.php.net/package/Crypt_RSA
  */
 
@@ -189,7 +189,7 @@ class Crypt_RSA extends Crypt_RSA_ErrorHandler
         $this->setErrorHandler($error_handler);
         // try to load math wrapper
         $obj = &Crypt_RSA_MathLoader::loadWrapper($wrapper_name);
-        if (PEAR::isError($obj)) {
+        if ($this->isError($obj)) {
             // error during loading of math wrapper
             // Crypt_RSA object is partially constructed.
             $this->pushError($obj);
@@ -251,61 +251,57 @@ class Crypt_RSA extends Crypt_RSA_ErrorHandler
     function setParams($params)
     {
         if (!is_array($params)) {
-            $obj = PEAR::raiseError('parameters must be passed to function as associative array', CRYPT_RSA_ERROR_WRONG_PARAMS);
-            $this->pushError($obj);
+            $this->pushError('parameters must be passed to function as associative array', CRYPT_RSA_ERROR_WRONG_PARAMS);
             return false;
         }
 
         if (isset($params['enc_key'])) {
             if (Crypt_RSA_Key::isValid($params['enc_key'])) {
                 $this->_enc_key = $params['enc_key'];
-            } else {
-                $obj = PEAR::raiseError('wrong encryption key. It must be an object of Crypt_RSA_Key class', CRYPT_RSA_ERROR_WRONG_KEY);
-                $this->pushError($obj);
+            }
+            else {
+                $this->pushError('wrong encryption key. It must be an object of Crypt_RSA_Key class', CRYPT_RSA_ERROR_WRONG_KEY);
                 return false;
             }
         }
         if (isset($params['dec_key'])) {
             if (Crypt_RSA_Key::isValid($params['dec_key'])) {
                 $this->_dec_key = $params['dec_key'];
-            } else {
-                $obj = PEAR::raiseError('wrong decryption key. It must be an object of Crypt_RSA_Key class', CRYPT_RSA_ERROR_WRONG_KEY);
-                $this->pushError($obj);
+            }
+            else {
+                $this->pushError('wrong decryption key. It must be an object of Crypt_RSA_Key class', CRYPT_RSA_ERROR_WRONG_KEY);
                 return false;
             }
         }
         if (isset($params['private_key'])) {
             if (Crypt_RSA_Key::isValid($params['private_key'])) {
                 if ($params['private_key']->getKeyType() != 'private') {
-                    $obj = PEAR::raiseError('private key must have "private" attribute', CRYPT_RSA_ERROR_WRONG_KEY_TYPE);
-                    $this->pushError($obj);
+                    $this->pushError('private key must have "private" attribute', CRYPT_RSA_ERROR_WRONG_KEY_TYPE);
                     return false;
                 }
                 $this->_private_key = $params['private_key'];
-            } else {
-                $obj = PEAR::raiseError('wrong private key. It must be an object of Crypt_RSA_Key class', CRYPT_RSA_ERROR_WRONG_KEY);
-                $this->pushError($obj);
+            }
+            else {
+                $this->pushError('wrong private key. It must be an object of Crypt_RSA_Key class', CRYPT_RSA_ERROR_WRONG_KEY);
                 return false;
             }
         }
         if (isset($params['public_key'])) {
             if (Crypt_RSA_Key::isValid($params['public_key'])) {
                 if ($params['public_key']->getKeyType() != 'public') {
-                    $obj = PEAR::raiseError('public key must have "public" attribute', CRYPT_RSA_ERROR_WRONG_KEY_TYPE);
-                    $this->pushError($obj);
+                    $this->pushError('public key must have "public" attribute', CRYPT_RSA_ERROR_WRONG_KEY_TYPE);
                     return false;
                 }
                 $this->_public_key = $params['public_key'];
-            } else {
-                $obj = PEAR::raiseError('wrong public key. It must be an object of Crypt_RSA_Key class', CRYPT_RSA_ERROR_WRONG_KEY);
-                $this->pushError($obj);
+            }
+            else {
+                $this->pushError('wrong public key. It must be an object of Crypt_RSA_Key class', CRYPT_RSA_ERROR_WRONG_KEY);
                 return false;
             }
         }
         if (isset($params['hash_func'])) {
             if (!function_exists($params['hash_func'])) {
-                $obj = PEAR::raiseError('cannot find hash function with name [' . $params['hash_func'] . ']', CRYPT_RSA_ERROR_WRONG_HASH_FUNC);
-                $this->pushError($obj);
+                $this->pushError('cannot find hash function with name [' . $params['hash_func'] . ']', CRYPT_RSA_ERROR_WRONG_HASH_FUNC);
                 return false;
             }
             $this->_hash_func = $params['hash_func'];
@@ -348,9 +344,9 @@ class Crypt_RSA extends Crypt_RSA_ErrorHandler
         if (is_null($key)) {
             // use current encryption key
             $key = $this->_enc_key;
-        } elseif (!Crypt_RSA_Key::isValid($key)) {
-            $obj = PEAR::raiseError('invalid encryption key. It must be an object of Crypt_RSA_Key class', CRYPT_RSA_ERROR_WRONG_KEY);
-            $this->pushError($obj);
+        }
+        else if (!Crypt_RSA_Key::isValid($key)) {
+            $this->pushError('invalid encryption key. It must be an object of Crypt_RSA_Key class', CRYPT_RSA_ERROR_WRONG_KEY);
             return false;
         }
 
@@ -410,9 +406,9 @@ class Crypt_RSA extends Crypt_RSA_ErrorHandler
         if (is_null($key)) {
             // use current decryption key
             $key = $this->_dec_key;
-        } elseif (!Crypt_RSA_Key::isValid($key)) {
-            $obj = PEAR::raiseError('invalid decryption key. It must be an object of Crypt_RSA_Key class', CRYPT_RSA_ERROR_WRONG_KEY);
-            $this->pushError($obj);
+        }
+        else if (!Crypt_RSA_Key::isValid($key)) {
+            $this->pushError('invalid decryption key. It must be an object of Crypt_RSA_Key class', CRYPT_RSA_ERROR_WRONG_KEY);
             return false;
         }
 
@@ -437,8 +433,7 @@ class Crypt_RSA extends Crypt_RSA_ErrorHandler
         // delete tail, containing of \x01
         $tail = ord($result{strlen($result) - 1});
         if ($tail != 1) {
-            $obj = PEAR::raiseError("Error tail of decrypted text = {$tail}. Expected 1", CRYPT_RSA_ERROR_WRONG_TAIL);
-            $this->pushError($obj);
+            $this->pushError("Error tail of decrypted text = {$tail}. Expected 1", CRYPT_RSA_ERROR_WRONG_TAIL);
             return false;
         }
         return substr($result, 0, -1);
@@ -461,14 +456,13 @@ class Crypt_RSA extends Crypt_RSA_ErrorHandler
         // check private key
         if (is_null($private_key)) {
             $private_key = $this->_private_key;
-        } elseif (!Crypt_RSA_Key::isValid($private_key)) {
-            $obj = PEAR::raiseError('invalid private key. It must be an object of Crypt_RSA_Key class', CRYPT_RSA_ERROR_WRONG_KEY);
-            $this->pushError($obj);
+        }
+        else if (!Crypt_RSA_Key::isValid($private_key)) {
+            $this->pushError('invalid private key. It must be an object of Crypt_RSA_Key class', CRYPT_RSA_ERROR_WRONG_KEY);
             return false;
         }
         if ($private_key->getKeyType() != 'private') {
-            $obj = PEAR::raiseError('signing key must be private', CRYPT_RSA_ERROR_NEED_PRV_KEY);
-            $this->pushError($obj);
+            $this->pushError('signing key must be private', CRYPT_RSA_ERROR_NEED_PRV_KEY);
             return false;
         }
 
@@ -477,8 +471,7 @@ class Crypt_RSA extends Crypt_RSA_ErrorHandler
             $hash_func = $this->_hash_func;
         }
         if (!function_exists($hash_func)) {
-            $obj = PEAR::raiseError('cannot find hash function with name [' . $hash_func . ']', CRYPT_RSA_ERROR_WRONG_HASH_FUNC);
-            $this->pushError($obj);
+            $this->pushError("cannot find hash function with name [$hash_func]", CRYPT_RSA_ERROR_WRONG_HASH_FUNC);
             return false;
         }
 
@@ -505,14 +498,13 @@ class Crypt_RSA extends Crypt_RSA_ErrorHandler
         // check public key
         if (is_null($public_key)) {
             $public_key = $this->_public_key;
-        } elseif (!Crypt_RSA_Key::isValid($public_key)) {
-            $obj = PEAR::raiseError('invalid public key. It must be an object of Crypt_RSA_Key class', CRYPT_RSA_ERROR_WRONG_KEY);
-            $this->pushError($obj);
+        }
+        else if (!Crypt_RSA_Key::isValid($public_key)) {
+            $this->pushError('invalid public key. It must be an object of Crypt_RSA_Key class', CRYPT_RSA_ERROR_WRONG_KEY);
             return null;
         }
         if ($public_key->getKeyType() != 'public') {
-            $obj = PEAR::raiseError('validating key must be public', CRYPT_RSA_ERROR_NEED_PUB_KEY);
-            $this->pushError($obj);
+            $this->pushError('validating key must be public', CRYPT_RSA_ERROR_NEED_PUB_KEY);
             return null;
         }
 
@@ -521,8 +513,7 @@ class Crypt_RSA extends Crypt_RSA_ErrorHandler
             $hash_func = $this->_hash_func;
         }
         if (!function_exists($hash_func)) {
-            $obj = PEAR::raiseError('cannot find hash function with name [' . $hash_func . ']', CRYPT_RSA_ERROR_WRONG_HASH_FUNC);
-            $this->pushError($obj);
+            $this->pushError("cannot find hash function with name [$hash_func]", CRYPT_RSA_ERROR_WRONG_HASH_FUNC);
             return null;
         }
 

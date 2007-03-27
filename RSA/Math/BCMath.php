@@ -18,7 +18,7 @@
  * @author     Alexander Valyalkin <valyala@gmail.com>
  * @copyright  2006 Alexander Valyalkin
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    1.1.0
+ * @version    1.2.0b
  * @link       http://pear.php.net/package/Crypt_RSA
  */
 
@@ -47,69 +47,6 @@ class Crypt_RSA_Math_BCMath
      * @access public
      */
     var $errstr = '';
-
-    /**
-     * Tests $num on primality. Returns true, if $num is strong pseudoprime.
-     * Else returns false.
-     *
-     * @param string $num
-     * @return bool
-     * @access private
-     */
-    function _isPrime($num)
-    {
-        static $primes = null;
-        static $primes_cnt = 0;
-        if (is_null($primes)) {
-            // generate all primes up to 10000
-            $primes = array();
-            for ($i = 0; $i < 10000; $i++) {
-                $primes[] = $i;
-            }
-            $primes[0] = $primes[1] = 0;
-            for ($i = 2; $i < 100; $i++) {
-                while (!$primes[$i]) {
-                    $i++;
-                }
-                $j = $i;
-                for ($j += $i; $j < 10000; $j += $i) {
-                    $primes[$j] = 0;
-                }
-            }
-            $j = 0;
-            for ($i = 0; $i < 10000; $i++) {
-                if ($primes[$i]) {
-                    $primes[$j++] = $primes[$i];
-                }
-            }
-            $primes_cnt = $j;
-        }
-
-        // try to divide number by small primes
-        for ($i = 0; $i < $primes_cnt; $i++) {
-            if (bccomp($num, $primes[$i]) <= 0) {
-                // number is prime
-                return true;
-            }
-            if (!bccomp(bcmod($num, $primes[$i]), '0')) {
-                // number divides by $primes[$i]
-                return false;
-            }
-        }
-
-        /*
-            try Miller-Rabin's probable-primality test for first
-            7 primes as bases
-        */
-        for ($i = 0; $i < 7; $i++) {
-            if (!$this->_millerTest($num, $primes[$i])) {
-                // $num is composite
-                return false;
-            }
-        }
-        // $num is strong pseudoprime
-        return true;
-    }
 
     /**
      * Performs Miller-Rabin primality test for number $num 
@@ -254,6 +191,19 @@ class Crypt_RSA_Math_BCMath
     }
 
     /**
+     * Calculates $num1 % $num2
+     *
+     * @param string $num1
+     * @param string $num2
+     * @return string
+     * @access public
+     */
+    function mod($num1, $num2)
+    {
+        return bcmod($num1, $num2);
+    }
+
+    /**
      * Compares abs($num1) to abs($num2).
      * Returns:
      *   -1, if abs($num1) < abs($num2)
@@ -271,6 +221,69 @@ class Crypt_RSA_Math_BCMath
     }
 
     /**
+     * Tests $num on primality. Returns true, if $num is strong pseudoprime.
+     * Else returns false.
+     *
+     * @param string $num
+     * @return bool
+     * @access private
+     */
+    function isPrime($num)
+    {
+        static $primes = null;
+        static $primes_cnt = 0;
+        if (is_null($primes)) {
+            // generate all primes up to 10000
+            $primes = array();
+            for ($i = 0; $i < 10000; $i++) {
+                $primes[] = $i;
+            }
+            $primes[0] = $primes[1] = 0;
+            for ($i = 2; $i < 100; $i++) {
+                while (!$primes[$i]) {
+                    $i++;
+                }
+                $j = $i;
+                for ($j += $i; $j < 10000; $j += $i) {
+                    $primes[$j] = 0;
+                }
+            }
+            $j = 0;
+            for ($i = 0; $i < 10000; $i++) {
+                if ($primes[$i]) {
+                    $primes[$j++] = $primes[$i];
+                }
+            }
+            $primes_cnt = $j;
+        }
+
+        // try to divide number by small primes
+        for ($i = 0; $i < $primes_cnt; $i++) {
+            if (bccomp($num, $primes[$i]) <= 0) {
+                // number is prime
+                return true;
+            }
+            if (!bccomp(bcmod($num, $primes[$i]), '0')) {
+                // number divides by $primes[$i]
+                return false;
+            }
+        }
+
+        /*
+            try Miller-Rabin's probable-primality test for first
+            7 primes as bases
+        */
+        for ($i = 0; $i < 7; $i++) {
+            if (!$this->_millerTest($num, $primes[$i])) {
+                // $num is composite
+                return false;
+            }
+        }
+        // $num is strong pseudoprime
+        return true;
+    }
+
+    /**
      * Generates prime number with length $bits_cnt
      * using $random_generator as random generator function.
      *
@@ -280,21 +293,24 @@ class Crypt_RSA_Math_BCMath
      */
     function getPrime($bits_cnt, $random_generator)
     {
-        $bytes_cnt = intval($bits_cnt / 8);
-        $bits_cnt %= 8;
+        $bytes_n = intval($bits_cnt / 8);
+        $bits_n = $bits_cnt % 8;
         do {
-            // generate random number with length [$bits_cnt]
-            $num = 1;
-            for ($i = 0; $i <= $bytes_cnt; $i++) {
-                $num = bcadd(bcmul($num, '256'), call_user_func($random_generator) & 0xff);
+            $str = '';
+            for ($i = 0; $i < $bytes_n; $i++) {
+                $str .= chr(call_user_func($random_generator) & 0xff);
             }
-            $num = bcdiv($num, 1 << (8 - $bits_cnt));
+            $n = call_user_func($random_generator) & 0xff;
+            $n |= 0x80;
+            $n >>= 8 - $bits_n;
+            $str .= chr($n);
+            $num = $this->bin2int($str);
 
-            // search next closest prime number after [$num]
+            // search for the next closest prime number after [$num]
             if (!bccomp(bcmod($num, '2'), '0')) {
                 $num = bcadd($num, '1');
             }
-            while (!$this->_isPrime($num)) {
+            while (!$this->isPrime($num)) {
                 $num = bcadd($num, '2');
             }
         } while ($this->bitLen($num) != $bits_cnt);
@@ -387,7 +403,8 @@ class Crypt_RSA_Math_BCMath
         $tmp = ord($tmp{strlen($tmp) - 1});
         if (!$tmp) {
             $bit_len -= 8;
-        } else {
+        }
+        else {
             while (!($tmp & 0x80)) {
                 $bit_len--;
                 $tmp <<= 1;
@@ -417,7 +434,8 @@ class Crypt_RSA_Math_BCMath
         if ($start_byte < strlen($tmp1)) {
             $tmp2 |= substr($tmp1, $start_byte);
             $tmp1 = substr($tmp1, 0, $start_byte) . $tmp2;
-        } else {
+        }
+        else {
             $tmp1 = str_pad($tmp1, $start_byte, "\0") . $tmp2;
         }
         return $this->bin2int($tmp1);

@@ -18,14 +18,16 @@ It uses one of the following extensions for math calculations:
   </maintainer>
   </maintainers>
  <release>
-  <version>1.1.0b</version>
-  <date>2006-02-23</date>
+  <version>1.2.0b</version>
+  <date>2006-02-26</date>
   <license>PHP</license>
   <state>beta</state>
-  <notes>* added fromPEMString() function in Crypt_RSA_KeyPair class. This function allows to retrieve RSA keypair from PEM-encoded strings. Thanks to all the people who sponsored .pem developement
-* modified key generation algorithm
-* added optional &apos;error_handler&apos; parameter to factory() methods in all classes
-* modified math wrapper interface: isZero(), nextPrime() and getRand() substituted by isOne() and getPrime() functions
+  <notes>* added toPEMString() function in Crypt_RSA_KeyPair class. It allows to store keypair in .pem file as RSA private key
+* added isEqual() function in Crypt_RSA_KeyPair class. It returns true if two keypairs are equal
+* added mod() and isPrime() functions to math wrappers interface
+* fixed bug in getPrime() function of GMP and BCMath math wrappers, which hangs up key generating process
+* added optional $random_generator parameter to Crypt_RSA_KeyPair constructor and factory() method
+* added benchmark in tests/bench.php, which clearly shows performance of different math wrappers (GMP, BigInt, BCMath). In short: GMP is 5 times faster than BigInt, BCMath is 50 times slower than BigInt.
   </notes>
   <deps>
    <dep type="ext" rel="has" optional="yes">bcmath</dep>
@@ -70,6 +72,8 @@ It uses one of the following extensions for math calculations:
   <provides type="function" name="Crypt_RSA_KeyPair::setRandomGenerator" />
   <provides type="function" name="Crypt_RSA_KeyPair::getKeyLength" />
   <provides type="function" name="Crypt_RSA_KeyPair::fromPEMString" />
+  <provides type="function" name="Crypt_RSA_KeyPair::toPEMString" />
+  <provides type="function" name="Crypt_RSA_KeyPair::isEqual" />
   <provides type="function" name="Crypt_RSA_KeyPair::isError" />
   <provides type="function" name="Crypt_RSA_KeyPair::getErrorList" />
   <provides type="function" name="Crypt_RSA_KeyPair::getLastError" />
@@ -90,7 +94,9 @@ It uses one of the following extensions for math calculations:
   <provides type="function" name="Crypt_RSA_Math_BigInt::int2bin" />
   <provides type="function" name="Crypt_RSA_Math_BigInt::powmod" />
   <provides type="function" name="Crypt_RSA_Math_BigInt::mul" />
+  <provides type="function" name="Crypt_RSA_Math_BigInt::mod" />
   <provides type="function" name="Crypt_RSA_Math_BigInt::cmpAbs" />
+  <provides type="function" name="Crypt_RSA_Math_BigInt::isPrime" />
   <provides type="function" name="Crypt_RSA_Math_BigInt::getPrime" />
   <provides type="function" name="Crypt_RSA_Math_BigInt::dec" />
   <provides type="function" name="Crypt_RSA_Math_BigInt::isOne" />
@@ -105,7 +111,9 @@ It uses one of the following extensions for math calculations:
   <provides type="function" name="Crypt_RSA_Math_BCMath::int2bin" />
   <provides type="function" name="Crypt_RSA_Math_BCMath::powmod" />
   <provides type="function" name="Crypt_RSA_Math_BCMath::mul" />
+  <provides type="function" name="Crypt_RSA_Math_BCMath::mod" />
   <provides type="function" name="Crypt_RSA_Math_BCMath::cmpAbs" />
+  <provides type="function" name="Crypt_RSA_Math_BCMath::isPrime" />
   <provides type="function" name="Crypt_RSA_Math_BCMath::getPrime" />
   <provides type="function" name="Crypt_RSA_Math_BCMath::dec" />
   <provides type="function" name="Crypt_RSA_Math_BCMath::isOne" />
@@ -120,7 +128,9 @@ It uses one of the following extensions for math calculations:
   <provides type="function" name="Crypt_RSA_Math_GMP::int2bin" />
   <provides type="function" name="Crypt_RSA_Math_GMP::powmod" />
   <provides type="function" name="Crypt_RSA_Math_GMP::mul" />
+  <provides type="function" name="Crypt_RSA_Math_GMP::mod" />
   <provides type="function" name="Crypt_RSA_Math_GMP::cmpAbs" />
+  <provides type="function" name="Crypt_RSA_Math_GMP::isPrime" />
   <provides type="function" name="Crypt_RSA_Math_GMP::getPrime" />
   <provides type="function" name="Crypt_RSA_Math_GMP::dec" />
   <provides type="function" name="Crypt_RSA_Math_GMP::isOne" />
@@ -131,21 +141,22 @@ It uses one of the following extensions for math calculations:
   <provides type="function" name="Crypt_RSA_Math_GMP::subint" />
   <provides type="function" name="Crypt_RSA_Math_GMP::getWrapperName" />
   <filelist>
-   <file role="php" baseinstalldir="Crypt" md5sum="4dc4fb4926c0fe36966b2926b0efa840" name="RSA.php"/>
-   <file role="php" baseinstalldir="Crypt" md5sum="77076008a77505ce72a7fcc0c48f9656" name="RSA/ErrorHandler.php"/>
-   <file role="php" baseinstalldir="Crypt" md5sum="b6a063ef6c25c2589e92401c72bb9ba8" name="RSA/Key.php"/>
-   <file role="php" baseinstalldir="Crypt" md5sum="5a8c889b028febf7c5858b8d25ac6d20" name="RSA/KeyPair.php"/>
-   <file role="php" baseinstalldir="Crypt" md5sum="a1bb53e6b89e5afb9f8fddcb7327442e" name="RSA/MathLoader.php"/>
-   <file role="php" baseinstalldir="Crypt" md5sum="2c15981a896aa267b340ce34157355fc" name="RSA/Math/BCMath.php"/>
-   <file role="php" baseinstalldir="Crypt" md5sum="da034f2ea0e1acff984b3ee0490b78dd" name="RSA/Math/BigInt.php"/>
-   <file role="php" baseinstalldir="Crypt" md5sum="036f2082efdac1111d5ea668f90732f3" name="RSA/Math/GMP.php"/>
+   <file role="php" baseinstalldir="Crypt" md5sum="6a9c4ac22b2bc7dfb8272a9f675e1c4a" name="RSA.php"/>
+   <file role="php" baseinstalldir="Crypt" md5sum="f1ac2bf277a5de66735e06e164940073" name="RSA/ErrorHandler.php"/>
+   <file role="php" baseinstalldir="Crypt" md5sum="5a0d2996e49700fa88236a73a79bd2c0" name="RSA/Key.php"/>
+   <file role="php" baseinstalldir="Crypt" md5sum="047a4cd0081b0dc67ede1c03261f0c54" name="RSA/KeyPair.php"/>
+   <file role="php" baseinstalldir="Crypt" md5sum="4b9e9f3c34bcaeec0c322b099b726b02" name="RSA/MathLoader.php"/>
+   <file role="php" baseinstalldir="Crypt" md5sum="78eb088a0e4424c2aa2829ebe4ede5c0" name="RSA/Math/BCMath.php"/>
+   <file role="php" baseinstalldir="Crypt" md5sum="0e998825b30b34878c4ca87423ee4e87" name="RSA/Math/BigInt.php"/>
+   <file role="php" baseinstalldir="Crypt" md5sum="7ab0d5da8962f3bf4cc471f2d9879111" name="RSA/Math/GMP.php"/>
    <file role="doc" baseinstalldir="Crypt" md5sum="8e699cdffe3e4e3d1341e2f1dc81d29d" name="CREDITS"/>
    <file role="doc" baseinstalldir="Crypt" md5sum="f4c7bb36cd36382f0cf5fd4594f73fee" name="LICENSE"/>
    <file role="doc" baseinstalldir="Crypt" md5sum="ca9d024c219dba927b4aee2dc1fb5737" name="docs/Crypt_RSA.txt"/>
-   <file role="doc" baseinstalldir="Crypt" md5sum="78b93d6745a22efeafea6a851c488443" name="docs/math_wrappers.txt"/>
-   <file role="doc" baseinstalldir="Crypt" md5sum="2f6ff6d854f5ca83fcaf3ce922cba3da" name="examples/web_interface.php"/>
-   <file role="test" baseinstalldir="Crypt" md5sum="5e6d9026f1907003a0af23c08f9f27cb" name="tests/test1.php"/>
-   <file role="test" baseinstalldir="Crypt" md5sum="4c5a5a7bd18ee31cb21b57bf2eb96b43" name="tests/test2.php"/>
+   <file role="doc" baseinstalldir="Crypt" md5sum="b93c59f9eb0f92a4c7ff235423f299d8" name="docs/math_wrappers.txt"/>
+   <file role="doc" baseinstalldir="Crypt" md5sum="73f96fcd914179a3500c71d96d77489a" name="examples/web_interface.php"/>
+   <file role="test" baseinstalldir="Crypt" md5sum="269bb4ce3ddc98efa5cc02c5fa36d71d" name="tests/bench.php"/>
+   <file role="test" baseinstalldir="Crypt" md5sum="ced4107d21a124ccfdc20f49e91e5c39" name="tests/test1.php"/>
+   <file role="test" baseinstalldir="Crypt" md5sum="4e5cea66200222ba82d7869cf4356caa" name="tests/test2.php"/>
   </filelist>
  </release>
 </package>

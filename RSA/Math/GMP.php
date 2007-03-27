@@ -18,7 +18,7 @@
  * @author     Alexander Valyalkin <valyala@gmail.com>
  * @copyright  2005, 2006 Alexander Valyalkin
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    1.1.0
+ * @version    1.2.0b
  * @link       http://pear.php.net/package/Crypt_RSA
  */
 
@@ -141,6 +141,19 @@ class Crypt_RSA_Math_GMP
     }
 
     /**
+     * Calculates $num1 % $num2
+     *
+     * @param string $num1
+     * @param string $num2
+     * @return string
+     * @access public
+     */
+    function mod($num1, $num2)
+    {
+        return gmp_mod($num1, $num2);
+    }
+
+    /**
      * Compares abs($num1) to abs($num2).
      * Returns:
      *   -1, if abs($num1) < abs($num2)
@@ -158,6 +171,19 @@ class Crypt_RSA_Math_GMP
     }
 
     /**
+     * Tests $num on primality. Returns true, if $num is strong pseudoprime.
+     * Else returns false.
+     *
+     * @param string $num
+     * @return bool
+     * @access private
+     */
+    function isPrime($num)
+    {
+        return gmp_prob_prime($num) ? true : false;
+    }
+
+    /**
      * Generates prime number with length $bits_cnt
      * using $random_generator as random generator function.
      *
@@ -167,17 +193,20 @@ class Crypt_RSA_Math_GMP
      */
     function getPrime($bits_cnt, $random_generator)
     {
-        $bytes_cnt = intval($bits_cnt / 8);
-        $bits_cnt %= 8;
+        $bytes_n = intval($bits_cnt / 8);
+        $bits_n = $bits_cnt % 8;
         do {
-            // generate random number with length [$bits_cnt]
-            $num = 1;
-            for ($i = 0; $i <= $bytes_cnt; $i++) {
-                $num = gmp_add(gmp_mul($num, '256'), call_user_func($random_generator) & 0xff);
+            $str = '';
+            for ($i = 0; $i < $bytes_n; $i++) {
+                $str .= chr(call_user_func($random_generator) & 0xff);
             }
-            $num = gmp_div($num, 1 << (8 - $bits_cnt));
+            $n = call_user_func($random_generator) & 0xff;
+            $n |= 0x80;
+            $n >>= 8 - $bits_n;
+            $str .= chr($n);
+            $num = $this->bin2int($str);
 
-            // search next closest prime number after [$num]
+            // search for the next closest prime number after [$num]
             if (!gmp_cmp(gmp_mod($num, '2'), '0')) {
                 $num = gmp_add($num, '1');
             }
@@ -253,7 +282,8 @@ class Crypt_RSA_Math_GMP
         $tmp = ord($tmp{strlen($tmp) - 1});
         if (!$tmp) {
             $bit_len -= 8;
-        } else {
+        }
+        else {
             while (!($tmp & 0x80)) {
                 $bit_len--;
                 $tmp <<= 1;
@@ -283,7 +313,8 @@ class Crypt_RSA_Math_GMP
         if ($start_byte < strlen($tmp1)) {
             $tmp2 |= substr($tmp1, $start_byte);
             $tmp1 = substr($tmp1, 0, $start_byte) . $tmp2;
-        } else {
+        }
+        else {
             $tmp1 = str_pad($tmp1, $start_byte, "\0") . $tmp2;
         }
         return $this->bin2int($tmp1);

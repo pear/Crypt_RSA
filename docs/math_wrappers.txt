@@ -13,7 +13,9 @@ Math wrapper class must provide interface with following functions:
     int2bin($num) - transforms large integer from native form into binary representation
     powmod($a, $b, $mod) - calculates ($a ^ $b) % $mod
     mul($a, $b) - calculates $a * $b
+    mod($a, $b) - calculates $a % $b
     cmpAbs($a, $b) - compares abs($a) with abs($b)
+    isPrime($num) - returns true if $num is strong pseudoprime
     getPrime($bits_cnt, $rnd_generator) - returns prime with length $bits_cnt
     dec($num) - calculates $num - 1
     isOne($num) - returns true, if $num is one

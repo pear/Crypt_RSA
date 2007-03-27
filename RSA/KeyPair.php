@@ -18,7 +18,7 @@
  * @author     Alexander Valyalkin <valyala@gmail.com>
  * @copyright  2005, 2006 Alexander Valyalkin
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    1.1.0
+ * @version    1.2.0b
  * @link       http://pear.php.net/package/Crypt_RSA
  */
 
@@ -46,7 +46,9 @@ require_once 'Crypt/RSA/Key.php';
  *  - getPrivateKey() - returns private key
  *  - getKeyLength() - returns bit key length
  *  - setRandomGenerator($func_name) - sets random generator to $func_name
- *  - fromPEMString($str) - retrieves key pair from PEM-encoded string
+ *  - fromPEMString($str) - retrieves keypair from PEM-encoded string
+ *  - toPEMString() - stores keypair to PEM-encoded string
+ *  - isEqual($keypair2) - compares current keypair to $keypair2
  *
  * Example usage:
  *    // create new 1024-bit key pair
@@ -80,7 +82,7 @@ require_once 'Crypt/RSA/Key.php';
  *
  *    // set random generator to $func_name, where $func_name
  *    // consists name of random generator function. See comments
- *    // befor setRandomGenerator() method for details
+ *    // before setRandomGenerator() method for details
  *    $key_pair->setRandomGenerator($func_name);
  *
  *    // error check
@@ -105,6 +107,19 @@ require_once 'Crypt/RSA/Key.php';
  *    // read key pair from .pem file 'private.pem':
  *    $str = file_get_contents('private.pem');
  *    $keypair = Crypt_RSA_KeyPair::fromPEMString($str);
+ *
+ *    // generate and write 1024-bit key pair to .pem file 'private_new.pem'
+ *    $keypair = new Crypt_RSA_KeyPair(1024);
+ *    $str = $keypair->toPEMString();
+ *    file_put_contents('private_new.pem', $str);
+ *
+ *    // compare $keypair1 to $keypair2
+ *    if ($keypair1->isEqual($keypair2)) {
+ *        echo "keypair1 = keypair2\n";
+ *    }
+ *    else {
+ *        echo "keypair1 != keypair2\n";
+ *    }
  *
  * @category   Encryption
  * @package    Crypt_RSA
@@ -159,23 +174,40 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
     var $_random_generator;
 
     /**
-     * Parse ASN.1 string [$str] starting form position [$pos].
+     * RSA keypair attributes [version, n, e, d, p, q, dmp1, dmq1, iqmp] as associative array
+     *
+     * @var array
+     * @access private
+     */
+    var $_attrs;
+
+    /**
+     * Returns names of keypair attributes from $this->_attrs array
+     *
+     * @return array  Array of keypair attributes names
+     * @access private
+     */
+    function _get_attr_names() {
+        return array('version', 'n', 'e', 'd', 'p', 'q', 'dmp1', 'dmq1', 'iqmp');
+    }
+
+    /**
+     * Parses ASN.1 string [$str] starting form position [$pos].
      * Returns tag and string value of parsed object.
      *
      * @param string $str
      * @param int $pos
-     * @param object $err_handler
+     * @param Crypt_RSA_ErrorHandler $err_handler
      *
-     * @return mixed    Array('tag' => ..., 'str' => ...) on success, PEAR_Error object on error
+     * @return mixed    Array('tag' => ..., 'str' => ...) on success, false on error
      * @access private
      */
-    function _ASN1Parse($str, &$pos, $err_handler)
+    function _ASN1Parse($str, &$pos, &$err_handler)
     {
         $max_pos = strlen($str);
         if ($max_pos < 2) {
-            $err = PEAR::raiseError("ASN.1 string too short");
-            $err_handler->pushError($err);
-            return $err;
+            $err_handler->pushError("ASN.1 string too short");
+            return false;
         }
 
         // get ASN.1 tag value
@@ -189,9 +221,8 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
             } while (($n & 0x80) && $pos < $max_pos);
         }
         if ($pos >= $max_pos) {
-            $err = PEAR::raiseError("ASN.1 string too short");
-            $err_handler->pushError($err);
-            return $err;
+            $err_handler->pushError("ASN.1 string too short");
+            return false;
         }
 
         // get ASN.1 object length
@@ -205,9 +236,8 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
             }
         }
         if ($pos >= $max_pos || $len > $max_pos - $pos) {
-            $err = PEAR::raiseError("ASN.1 string too short");
-            $err_handler->pushError($err);
-            return $err;
+            $err_handler->pushError("ASN.1 string too short");
+            return false;
         }
 
         // get string value of ASN.1 object
@@ -220,32 +250,96 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
     }
 
     /**
-     * Parse ASN.1 sting [$str] starting from position [$pos].
+     * Parses ASN.1 sting [$str] starting from position [$pos].
      * Returns string representation of number, which can be passed
      * in bin2int() function of math wrapper.
      *
      * @param string $str
      * @param int $pos
-     * @param object $err_handler
+     * @param object Crypt_RSA_ErrorHandler $err_handler
      *
-     * @return mixed   string representation of parsed number on success, PEAR_Error object on error
+     * @return mixed   string representation of parsed number on success, false on error
      * @access private
      */
-    function _ASN1ParseInt($str, &$pos, $err_handler)
+    function _ASN1ParseInt($str, &$pos, &$err_handler)
     {
         $tmp = Crypt_RSA_KeyPair::_ASN1Parse($str, $pos, $err_handler);
-        if (PEAR::isError($tmp)) {
-            return $tmp;
+        if ($err_handler->isError()) {
+            return false;
         }
         if ($tmp['tag'] != 0x02) {
             $errstr = sprintf("wrong ASN tag value: 0x%02x. Expected 0x02 (INTEGER)", $tmp['tag']);
-            $err = PEAR::raiseError($errstr);
-            $err_handler->pushError($err);
-            return $err;
+            $err_handler->pushError($errstr);
+            return false;
         }
         $pos += strlen($tmp['str']);
 
         return strrev($tmp['str']);
+    }
+
+    /**
+     * Constructs ASN.1 string from tag $tag and object $str
+     *
+     * @param string $str ASN.1 object string
+     * @param int $tag ASN.1 tag value
+     * @param bool $is_constructed
+     * @param bool $is_private
+     *
+     * @return ASN.1-encoded string
+     * @access private
+     */
+    function _ASN1Store($str, $tag, $is_constructed = false, $is_private = false)
+    {
+        $out = '';
+
+        // encode ASN.1 tag value
+        $tag_ext = ($is_constructed ? 0x20 : 0) | ($is_private ? 0xc0 : 0);
+        if ($tag < 0x1f) {
+            $out .= chr($tag | $tag_ext) ;
+        }
+        else {
+            $out .= chr($tag_ext | 0x1f);
+            $tmp = chr($tag & 0x7f);
+            $tag >>= 7;
+            while ($tag) {
+                $tmp .= chr(($tag & 0x7f) | 0x80);
+                $tag >>= 7;
+            }
+            $out .= strrev($tmp);
+        }
+
+        // encode ASN.1 object length
+        $len = strlen($str);
+        if ($len < 0x7f) {
+            $out .= chr($len);
+        }
+        else {
+            $tmp = '';
+            $n = 0;
+            while ($len) {
+                $tmp .= chr($len & 0xff);
+                $len >>= 8;
+                $n++;
+            }
+            $out .= chr($n | 0x80);
+            $out .= strrev($tmp);
+        }
+
+        return $out . $str;
+    }
+
+    /**
+     * Constructs ASN.1 string from binary representation of big integer
+     *
+     * @param string $str binary representation of big integer
+     *
+     * @return ASN.1-encoded string
+     * @access private
+     */
+    function _ASN1StoreInt($str)
+    {
+        $str = strrev($str);
+        return Crypt_RSA_KeyPair::_ASN1Store($str, 0x02);
     }
 
     /**
@@ -258,46 +352,95 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
      *        See contents of Crypt/RSA/Math folder for examples of wrappers.
      *        Read docs/Crypt_RSA/docs/math_wrappers.txt for details.
      * @param string $error_handler   name of error handler function
+     * @param callback $random_generator function which will be used as random generator
      *
      * @access public
      */
-    function Crypt_RSA_KeyPair($key_len, $wrapper_name = 'default', $error_handler = '')
+    function Crypt_RSA_KeyPair($key_len, $wrapper_name = 'default', $error_handler = '', $random_generator = null)
     {
         // set error handler
         $this->setErrorHandler($error_handler);
         // try to load math wrapper
         $obj = &Crypt_RSA_MathLoader::loadWrapper($wrapper_name);
-        if (PEAR::isError($obj)) {
+        if ($this->isError($obj)) {
             // error during loading of math wrapper
             $this->pushError($obj);
             return;
         }
         $this->_math_obj = &$obj;
 
-        // set default random generator
-        if (!$this->setRandomGenerator()) {
+        // set random generator
+        if (!$this->setRandomGenerator($random_generator)) {
             // error in setRandomGenerator() function
             return;
         }
 
         if (is_array($key_len)) {
-            // ugly BC hack - it is possible to pass array of [n, e, d] instead of key length
-            list($n, $e, $d) = $key_len;
+            // ugly BC hack - it is possible to pass RSA private key attributes [version, n, e, d, p, q, dmp1, dmq1, iqmp]
+            // as associative array instead of key length to Crypt_RSA_KeyPair constructor
+            $rsa_attrs = $key_len;
 
-            // check 2^(e*d) = 2 (mod n)
-            $a_int = $this->_math_obj->bin2int("\x02");
-            $n_int = $this->_math_obj->bin2int($n);
-            $e_int = $this->_math_obj->bin2int($e);
-            $d_int = $this->_math_obj->bin2int($d);
-            $b_int = $this->_math_obj->powMod($a_int, $e_int, $n_int);
-            $b_int = $this->_math_obj->powMod($b_int, $d_int, $n_int);
-            if ($this->_math_obj->cmpAbs($a_int, $b_int)) {
-                $this->pushError(PEAR::raiseError("Incorrect [n, e, d] numbers"));
+            // convert attributes to big integers
+            $attr_names = $this->_get_attr_names();
+            foreach ($attr_names as $attr) {
+                if (!isset($rsa_attrs[$attr])) {
+                    $this->pushError("missing required RSA attribute [$attr]");
+                    return;
+                }
+                ${$attr} = $this->_math_obj->bin2int($rsa_attrs[$attr]);
+            }
+
+            // check primality of p and q
+            if (!$this->_math_obj->isPrime($p)) {
+                $this->pushError("[p] must be prime");
+                return;
+            }
+            if (!$this->_math_obj->isPrime($q)) {
+                $this->pushError("[q] must be prime");
+                return;
+            }
+
+            // check n = p * q
+            $n1 = $this->_math_obj->mul($p, $q);
+            if ($this->_math_obj->cmpAbs($n, $n1)) {
+                $this->pushError("n != p * q");
+                return;
+            }
+
+            // check e * d = 1 mod (p-1) * (q-1)
+            $p1 = $this->_math_obj->dec($p);
+            $q1 = $this->_math_obj->dec($q);
+            $p1q1 = $this->_math_obj->mul($p1, $q1);
+            $ed = $this->_math_obj->mul($e, $d);
+            $one = $this->_math_obj->mod($ed, $p1q1);
+            if (!$this->_math_obj->isOne($one)) {
+                $this->pushError("e * d != 1 mod (p-1)*(q-1)");
+                return;
+            }
+
+            // check dmp1 = d mod (p-1)
+            $dmp = $this->_math_obj->mod($d, $p1);
+            if ($this->_math_obj->cmpAbs($dmp, $dmp1)) {
+                $this->pushError("dmp1 != d mod (p-1)");
+                return;
+            }
+
+            // check dmq1 = d mod (q-1)
+            $dmq = $this->_math_obj->mod($d, $q1);
+            if ($this->_math_obj->cmpAbs($dmq, $dmq1)) {
+                $this->pushError("dmq1 != d mod (q-1)");
+                return;
+            }
+
+            // check iqmp = 1/q mod p
+            $q1 = $this->_math_obj->invmod($iqmp, $p);
+            if ($this->_math_obj->cmpAbs($q, $q1)) {
+                $this->pushError("iqmp != 1/q mod p");
                 return;
             }
 
             // try to create public key object
-            $public_key = &new Crypt_RSA_Key($n, $e, 'public');
+            $public_key = &new Crypt_RSA_Key($rsa_attrs['n'], $rsa_attrs['e'], 'public', $wrapper_name, $error_handler);
             if ($public_key->isError()) {
                 // error during creating public object
                 $this->pushError($public_key->getLastError());
@@ -305,7 +448,7 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
             }
 
             // try to create private key object
-            $private_key = &new Crypt_RSA_Key($n, $d, 'private');
+            $private_key = &new Crypt_RSA_Key($rsa_attrs['n'], $rsa_attrs['d'], 'private', $wrapper_name, $error_handler);
             if ($private_key->isError()) {
                 // error during creating private key object
                 $this->pushError($private_key->getLastError());
@@ -315,6 +458,7 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
             $this->_public_key = $public_key;
             $this->_private_key = $private_key;
             $this->_key_len = $public_key->getKeyLength();
+            $this->_attrs = $rsa_attrs;
         }
         else {
             // generate key pair
@@ -335,13 +479,14 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
      *        See contents of Crypt/RSA/Math folder for examples of wrappers.
      *        Read docs/Crypt_RSA/docs/math_wrappers.txt for details.
      * @param string $error_handler   name of error handler function
+     * @param callback $random_generator function which will be used as random generator
      *
      * @return object   new Crypt_RSA_KeyPair object on success or PEAR_Error object on failure
      * @access public
      */
-    function &factory($key_len, $wrapper_name = 'default', $error_handler = '')
+    function &factory($key_len, $wrapper_name = 'default', $error_handler = '', $random_generator = null)
     {
-        $obj = &new Crypt_RSA_KeyPair($key_len, $wrapper_name, $error_handler);
+        $obj = &new Crypt_RSA_KeyPair($key_len, $wrapper_name, $error_handler, $random_generator);
         if ($obj->isError()) {
             // error during creating a new object. Retrurn PEAR_Error object
             return $obj->getLastError();
@@ -364,14 +509,14 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
             // use an old key length
             $key_len = $this->_key_len;
             if (is_null($key_len)) {
-                $obj = PEAR::raiseError('missing key_len parameter', CRYPT_RSA_ERROR_MISSING_KEY_LEN);
-                $this->pushError($obj);
+                $this->pushError('missing key_len parameter', CRYPT_RSA_ERROR_MISSING_KEY_LEN);
                 return false;
             }
         }
-        // align $key_len to 8 bits
-        if ($key_len & 7) {
-            $key_len += 8 - ($key_len % 8);
+
+        // minimal key length is 8 bit ;)
+        if ($key_len < 8) {
+            $key_len = 8;
         }
         // store key length in the _key_len property
         $this->_key_len = $key_len;
@@ -404,6 +549,9 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
                 $tmp = $p;
                 $p = $q;
                 $q = $tmp;
+                $tmp = $p1;
+                $p1 = $q1;
+                $q1 = $tmp;
             }
             // calculate n = p * q
             $n = $this->_math_obj->mul($p, $q);
@@ -413,19 +561,34 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
         $pq = $this->_math_obj->mul($p1, $q1);
         $d = $this->_math_obj->invmod($e, $pq);
 
-        // convert [n], [e] and [d] into binary representation
-        $modulus = $this->_math_obj->int2bin($n);
-        $public_exp = $this->_math_obj->int2bin($e);
-        $private_exp = $this->_math_obj->int2bin($d);
+        // calculate dmp1 = d mod (p - 1)
+        $dmp1 = $this->_math_obj->mod($d, $p1);
+
+        // calculate dmq1 = d mod (q - 1)
+        $dmq1 = $this->_math_obj->mod($d, $q1);
+
+        // calculate iqmp = 1/q mod p
+        $iqmp = $this->_math_obj->invmod($q, $p);
+
+        // store RSA keypair attributes
+        $this->_attrs = array(
+            'version' => "\x00",
+            'n' => $this->_math_obj->int2bin($n),
+            'e' => $this->_math_obj->int2bin($e),
+            'd' => $this->_math_obj->int2bin($d),
+            'p' => $this->_math_obj->int2bin($p),
+            'q' => $this->_math_obj->int2bin($q),
+            'dmp1' => $this->_math_obj->int2bin($dmp1),
+            'dmq1' => $this->_math_obj->int2bin($dmq1),
+            'iqmp' => $this->_math_obj->int2bin($iqmp),
+        );
+
+        $n = $this->_attrs['n'];
+        $e = $this->_attrs['e'];
+        $d = $this->_attrs['d'];
 
         // try to create public key object
-        $obj = &new Crypt_RSA_Key(
-            $modulus,
-            $public_exp,
-            'public',
-            $this->_math_obj->getWrapperName(),
-            $this->_error_handler
-        );
+        $obj = &new Crypt_RSA_Key($n, $e, 'public', $this->_math_obj->getWrapperName(), $this->_error_handler);
         if ($obj->isError()) {
             // error during creating public object
             $this->pushError($obj->getLastError());
@@ -434,13 +597,7 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
         $this->_public_key = &$obj;
 
         // try to create private key object
-        $obj = &new Crypt_RSA_Key(
-            $modulus,
-            $private_exp,
-            'private',
-            $this->_math_obj->getWrapperName(),
-            $this->_error_handler
-        );
+        $obj = &new Crypt_RSA_Key($n, $d, 'private', $this->_math_obj->getWrapperName(), $this->_error_handler);
         if ($obj->isError()) {
             // error during creating private key object
             $this->pushError($obj->getLastError());
@@ -491,12 +648,12 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
         if (is_string($random_generator)) {
             // set user's random generator
             if (!function_exists($random_generator)) {
-                $obj = PEAR::raiseError("can't find random generator function with name [{$random_generator}]");
-                $this->pushError($obj);
+                $this->pushError("can't find random generator function with name [{$random_generator}]");
                 return false;
             }
             $this->_random_generator = $random_generator;
-        } else {
+        }
+        else {
             // set default random generator
             $this->_random_generator = is_null($default_random_generator) ?
                 ($default_random_generator = create_function('', '$a=explode(" ",microtime());return(int)($a[0]*1000000);')) :
@@ -517,7 +674,7 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
     }
 
     /**
-     * Retrieve RSA keypair from PEM-encoded string, containing RSA private key.
+     * Retrieves RSA keypair from PEM-encoded string, containing RSA private key.
      * Example of such string:
      * -----BEGIN RSA PRIVATE KEY-----
      * MCsCAQACBHtvbSECAwEAAQIEeYrk3QIDAOF3AgMAjCcCAmdnAgJMawIDALEk
@@ -536,61 +693,108 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
      */
     function &fromPEMString($str, $wrapper_name = 'default', $error_handler = '')
     {
-        // search for base64-encoded private key
+        if (isset($this)) {
+            if ($wrapper_name == 'default') {
+                $wrapper_name = $this->_math_obj->getWrapperName();
+            }
+            if ($error_handler == '') {
+                $error_handler = $this->_error_handler;
+            }
+        }
         $err_handler = &new Crypt_RSA_ErrorHandler;
         $err_handler->setErrorHandler($error_handler);
 
-        if (!preg_match('/-----BEGIN RSA PRIVATE KEY-----[\\r\\n]+([^-]+)-----END RSA PRIVATE KEY-----/', $str, $matches)) {
-            $err = PEAR::raiseError("can't find RSA private key in the string [{$str}]");
-            $err_handler->pushError($err);
-            return $err;
+        // search for base64-encoded private key
+        if (!preg_match('/-----BEGIN RSA PRIVATE KEY-----([^-]+)-----END RSA PRIVATE KEY-----/', $str, $matches)) {
+            $err_handler->pushError("can't find RSA private key in the string [{$str}]");
+            return $err_handler->getLastError();
         }
 
         // parse private key. It is ASN.1-encoded
         $str = base64_decode($matches[1]);
         $pos = 0;
         $tmp = Crypt_RSA_KeyPair::_ASN1Parse($str, $pos, $err_handler);
-        if (PEAR::isError($tmp)) {
-            return $tmp;
+        if ($err_handler->isError()) {
+            return $err_handler->getLastError();
         }
         if ($tmp['tag'] != 0x10) {
             $errstr = sprintf("wrong ASN tag value: 0x%02x. Expected 0x10 (SEQUENCE)", $tmp['tag']);
-            $err = PEAR::raiseError($errstr);
-            $err_handler->pushError($err);
-            return $err;
+            $err_handler->pushError($errstr);
+            return $err_handler->getLastError();
         }
 
-        // skip [version] field
-        $tmp = Crypt_RSA_KeyPair::_ASN1ParseInt($str, $pos, $err_handler);
-        if (PEAR::isError($tmp)) {
-            return $tmp;
-        }
-
-        // get [n]
-        $n = Crypt_RSA_KeyPair::_ASN1ParseInt($str, $pos, $err_handler);
-        if (PEAR::isError($n)) {
-            return $n;
-        }
-
-        // get [e]
-        $e = Crypt_RSA_KeyPair::_ASN1ParseInt($str, $pos, $err_handler);
-        if (PEAR::isError($e)) {
-            return $e;
-        }
-
-        // get [d]
-        $d = Crypt_RSA_KeyPair::_ASN1ParseInt($str, $pos, $err_handler);
-        if (PEAR::isError($d)) {
-            return $d;
+        // parse ASN.1 SEQUENCE for RSA private key
+        $attr_names = Crypt_RSA_KeyPair::_get_attr_names();
+        $n = sizeof($attr_names);
+        $rsa_attrs = array();
+        for ($i = 0; $i < $n; $i++) {
+            $tmp = Crypt_RSA_KeyPair::_ASN1ParseInt($str, $pos, $err_handler);
+            if ($err_handler->isError()) {
+                return $err_handler->getLastError();
+            }
+            $attr = $attr_names[$i];
+            $rsa_attrs[$attr] = $tmp;
         }
 
         // create Crypt_RSA_KeyPair object.
-        $obj = &new Crypt_RSA_KeyPair(array($n, $e, $d), $wrapper_name, $error_handler);
-        if ($obj->isError()) {
-            return $obj->getLastError();
+        $keypair = &new Crypt_RSA_KeyPair($rsa_attrs, $wrapper_name, $error_handler);
+        if ($keypair->isError()) {
+            return $keypair->getLastError();
         }
 
-        return $obj;
+        return $keypair;
+    }
+
+    /**
+     * converts keypair to PEM-encoded string, which can be stroed in 
+     * .pem compatible files, contianing RSA private key.
+     *
+     * @return string PEM-encoded keypair on success, false on error
+     * @access public
+     */
+    function toPEMString()
+    {
+        // store RSA private key attributes into ASN.1 string
+        $str = '';
+        $attr_names = $this->_get_attr_names();
+        $n = sizeof($attr_names);
+        $rsa_attrs = $this->_attrs;
+        for ($i = 0; $i < $n; $i++) {
+            $attr = $attr_names[$i];
+            if (!isset($rsa_attrs[$attr])) {
+                $this->pushError("Cannot find value for ASN.1 attribute [$attr]");
+                return false;
+            }
+            $tmp = $rsa_attrs[$attr];
+            $str .= Crypt_RSA_KeyPair::_ASN1StoreInt($tmp);
+        }
+
+        // prepend $str by ASN.1 SEQUENCE (0x10) header
+        $str = Crypt_RSA_KeyPair::_ASN1Store($str, 0x10, true);
+
+        // encode and format PEM string
+        $str = base64_encode($str);
+        $str = chunk_split($str, 64, "\n");
+        return "-----BEGIN RSA PRIVATE KEY-----\n$str-----END RSA PRIVATE KEY-----\n";
+    }
+
+    /**
+     * Compares keypairs in Crypt_RSA_KeyPair objects $this and $key_pair
+     *
+     * @param Crypt_RSA_KeyPair object $key_pair  keypair to compare
+     *
+     * @return bool  true, if keypair stored in $this equal to keypair stored in $key_pair
+     * @access public
+     */
+    function isEqual($key_pair)
+    {
+        $attr_names = $this->_get_attr_names();
+        foreach ($attr_names as $attr) {
+            if ($this->_attrs[$attr] != $key_pair->_attrs[$attr]) {
+                return false;
+            }
+        }
+        return true;
     }
 }
 

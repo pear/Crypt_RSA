@@ -26,33 +26,37 @@
  */
 
 /**
- * this test script checks factory() methods functionality
- * for Crypt_RSA, Crypt_RSA_Key and Crypt_RSA_KeyPair classes
+ * This script tries to generate 4096-bit keys by using different math wrappers
  */
 
 require_once 'Crypt/RSA.php';
 
-echo "Start of testing factory() methods...\n";
+define('KEY_LENGTH', 2048);
 
-// try to create a Crypt_RSA object using factory() static call
-$obj = &Crypt_RSA::factory();
-if (PEAR::isError($obj)) {
-    echo 'error in Crypt_RSA factory(): ', $obj->getMessage(), "\n";
+echo "key length: " . KEY_LENGTH . " bit\n";
+go('GMP');
+go('BigInt');
+go('BCMath');
+
+
+function getmicrotime() 
+{
+   list($usec, $sec) = explode(" ", microtime());
+   return ((float)$usec + (float)$sec);
 }
 
-// try to create a Crypt_RSA_KeyPair object using factory() static call
-$obj = &Crypt_RSA_KeyPair::factory(128);
-if (PEAR::isError($obj)) {
-    echo 'error in Crypt_RSA_KeyPair factory(): ', $obj->getMessage(), "\n";
+function go($math_wrapper)
+{
+    echo "Test $math_wrapper: ";
+    mt_srand(1);
+    $start = getmicrotime();
+    $keypair = &Crypt_RSA_KeyPair::factory(KEY_LENGTH, $math_wrapper, '', 'mt_rand');
+    if (PEAR::isError($obj)) {
+        echo 'failed: ', $obj->getMessage(), "\n";
+        return;
+    }
+    $time = getmicrotime() - $start;
+    printf("done. Time: %.3f seconds\n", $time);
 }
-$key = $obj->getPrivateKey();
-
-// try to create a Crypt_RSA_Key object using factory() static call
-$obj = &Crypt_RSA_Key::factory($key->getModulus(), $key->getExponent(), $key->getKeyType());
-if (PEAR::isError($obj)) {
-    echo 'error in Crypt_RSA_KeyPair factory(): ', $obj->getMessage(), "\n";
-}
-
-echo "end\n";
 
 ?>

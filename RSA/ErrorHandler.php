@@ -18,7 +18,7 @@
  * @author     Alexander Valyalkin <valyala@gmail.com>
  * @copyright  2005, 2006 Alexander Valyalkin
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    1.1.0
+ * @version    1.2.0b
  * @link       http://pear.php.net/package/Crypt_RSA
  */
 
@@ -106,7 +106,7 @@ define('CRYPT_RSA_ERROR_WRONG_TAIL', 13);
  *   - isError() - returns true, if list contains errors, else returns false
  *   - getErrorList() - returns error list
  *   - getLastError() - returns last error from error list or false, if list is empty
- *   - pushError($error) - pushes $error into the error list
+ *   - pushError($errstr) - pushes $errstr into the error list
  *   - setErrorHandler($new_error_handler) - sets error handler function
  *   - getErrorHandler() - returns name of error handler function
  *
@@ -140,12 +140,13 @@ class Crypt_RSA_ErrorHandler
     /**
      * Returns true if list of errors is not empty, else returns false
      *
-     * @return bool    true, if list of errors is not empty, else false
+     * @param object
+     * @return bool    true, if list of errors is not empty or $err is PEAR_Error object, else false
      * @access public
      */
-    function isError()
+    function isError($err = null)
     {
-        return sizeof($this->_errors) > 0;
+        return is_null($err) ? (sizeof($this->_errors) > 0) : PEAR::isError($err);
     }
 
     /**
@@ -177,17 +178,14 @@ class Crypt_RSA_ErrorHandler
     /**
      * pushes error object $error to the error list
      *
-     * @param object $error  error object of PEAR_Error class
+     * @param string $errstr error string
+     * @param int $errno     error number
      * @return bool          true on success, false on error
      * @access public
      */
-    function pushError($error)
+    function pushError($errstr, $errno = 0)
     {
-        if (!PEAR::isError($error)) {
-            // $error must be a PEAR_Error object
-            return false;
-        }
-        $this->_errors[] = $error;
+        $this->_errors[] = PEAR::raiseError($errstr, $errno);
 
         if ($this->_error_handler != '') {
             // call user defined error handler

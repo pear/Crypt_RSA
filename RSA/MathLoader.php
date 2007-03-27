@@ -18,7 +18,7 @@
  * @author     Alexander Valyalkin <valyala@gmail.com>
  * @copyright  2005, 2006 Alexander Valyalkin
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    1.1.0
+ * @version    1.2.0b
  * @link       http://pear.php.net/package/Crypt_RSA
  */
 
@@ -88,37 +88,43 @@ class Crypt_RSA_MathLoader
             return $math_objects[$wrapper_name];
         }
 
+        $err_handler = &new Crypt_RSA_ErrorHandler;
+
         if ($wrapper_name === 'default') {
             // try to load the most suitable wrapper
             $n = sizeof($math_wrappers);
             for ($i = 0; $i < $n; $i++) {
                 $obj = &Crypt_RSA_MathLoader::loadWrapper($math_wrappers[$i]);
-                if (!PEAR::isError($obj)) {
+                if (!$err_handler->isError($obj)) {
                     // wrapper for $math_wrappers[$i] successfully loaded
                     // register it as default wrapper and return reference to it
                     return $math_objects['default'] = &$obj;
                 }
             }
             // can't load any wrapper
-            return PEAR::raiseError("can't load any wrapper for existing math libraries", CRYPT_RSA_ERROR_NO_WRAPPERS);
+            $err_handler->pushError("can't load any wrapper for existing math libraries", CRYPT_RSA_ERROR_NO_WRAPPERS);
+            return $err_handler->getLastError();
         }
 
         $class_name = 'Crypt_RSA_Math_' . $wrapper_name;
         $class_filename = dirname(__FILE__) . '/Math/' . $wrapper_name . '.php';
 
         if (!is_file($class_filename)) {
-            return PEAR::raiseError("can't find file [{$class_filename}] for RSA math wrapper [{$wrapper_name}]", CRYPT_RSA_ERROR_NO_FILE);
+            $err_handler->pushError("can't find file [{$class_filename}] for RSA math wrapper [{$wrapper_name}]", CRYPT_RSA_ERROR_NO_FILE);
+            return $err_handler->getLastError();
         }
         require_once($class_filename);
         if (!class_exists($class_name)) {
-            return PEAR::raiseError("can't find class [{$class_name}] in file [{$class_filename}]", CRYPT_RSA_ERROR_NO_CLASS);
+            $err_handler->pushError("can't find class [{$class_name}] in file [{$class_filename}]", CRYPT_RSA_ERROR_NO_CLASS);
+            return $err_handler->getLastError();
         }
 
         // create and return wrapper object on success or PEAR_Error object on error
         $obj = &new $class_name;
         if ($obj->errstr) {
             // cannot load required extension for math wrapper
-            $obj = PEAR::raiseError($obj->errstr, CRYPT_RSA_ERROR_NO_EXT);
+            $err_handler->pushError($obj->errstr, CRYPT_RSA_ERROR_NO_EXT);
+            return $err_handler->getLastError();
         }
         return $math_objects[$wrapper_name] = &$obj;
     }
