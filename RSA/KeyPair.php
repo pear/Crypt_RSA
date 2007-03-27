@@ -1,6 +1,4 @@
 <?php
-/* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
-
 /**
  * Crypt_RSA allows to do following operations:
  *     - key pair generation
@@ -18,9 +16,9 @@
  * @category   Encryption
  * @package    Crypt_RSA
  * @author     Alexander Valyalkin <valyala@gmail.com>
- * @copyright  2005 Alexander Valyalkin
+ * @copyright  2005, 2006 Alexander Valyalkin
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    1.0.0
+ * @version    1.1.0
  * @link       http://pear.php.net/package/Crypt_RSA
  */
 
@@ -48,6 +46,7 @@ require_once 'Crypt/RSA/Key.php';
  *  - getPrivateKey() - returns private key
  *  - getKeyLength() - returns bit key length
  *  - setRandomGenerator($func_name) - sets random generator to $func_name
+ *  - fromPEMString($str) - retrieves key pair from PEM-encoded string
  *
  * Example usage:
  *    // create new 1024-bit key pair
@@ -97,10 +96,20 @@ require_once 'Crypt/RSA/Key.php';
  *        echo "error: ", $rsa_obj->getMessage(), "\n";
  *    }
  *
+ *    // read key pair from PEM-encoded string:
+ *    $str = "-----BEGIN RSA PRIVATE KEY-----"
+ *         . "MCsCAQACBHr5LDkCAwEAAQIEBc6jbQIDAOCfAgMAjCcCAk3pAgJMawIDAL41"
+ *         . "-----END RSA PRIVATE KEY-----";
+ *    $keypair = Crypt_RSA_KeyPair::fromPEMString($str);
+ *
+ *    // read key pair from .pem file 'private.pem':
+ *    $str = file_get_contents('private.pem');
+ *    $keypair = Crypt_RSA_KeyPair::fromPEMString($str);
+ *
  * @category   Encryption
  * @package    Crypt_RSA
  * @author     Alexander Valyalkin <valyala@gmail.com>
- * @copyright  2005 Alexander Valyalkin
+ * @copyright  2005, 2006 Alexander Valyalkin
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
  * @link       http://pear.php.net/package/Crypt_RSA
  * @version    @package_version@
@@ -150,6 +159,96 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
     var $_random_generator;
 
     /**
+     * Parse ASN.1 string [$str] starting form position [$pos].
+     * Returns tag and string value of parsed object.
+     *
+     * @param string $str
+     * @param int $pos
+     * @param object $err_handler
+     *
+     * @return mixed    Array('tag' => ..., 'str' => ...) on success, PEAR_Error object on error
+     * @access private
+     */
+    function _ASN1Parse($str, &$pos, $err_handler)
+    {
+        $max_pos = strlen($str);
+        if ($max_pos < 2) {
+            $err = PEAR::raiseError("ASN.1 string too short");
+            $err_handler->pushError($err);
+            return $err;
+        }
+
+        // get ASN.1 tag value
+        $tag = ord($str[$pos++]) & 0x1f;
+        if ($tag == 0x1f) {
+            $tag = 0;
+            do {
+                $n = ord($str[$pos++]);
+                $tag <<= 7;
+                $tag |= $n & 0x7f;
+            } while (($n & 0x80) && $pos < $max_pos);
+        }
+        if ($pos >= $max_pos) {
+            $err = PEAR::raiseError("ASN.1 string too short");
+            $err_handler->pushError($err);
+            return $err;
+        }
+
+        // get ASN.1 object length
+        $len = ord($str[$pos++]);
+        if ($len & 0x80) {
+            $n = $len & 0x1f;
+            $len = 0;
+            while ($n-- && $pos < $max_pos) {
+                $len <<= 8;
+                $len |= ord($in[$pos++]);
+            }
+        }
+        if ($pos >= $max_pos || $len > $max_pos - $pos) {
+            $err = PEAR::raiseError("ASN.1 string too short");
+            $err_handler->pushError($err);
+            return $err;
+        }
+
+        // get string value of ASN.1 object
+        $str = substr($str, $pos, $len);
+
+        return array(
+            'tag' => $tag,
+            'str' => $str,
+        );
+    }
+
+    /**
+     * Parse ASN.1 sting [$str] starting from position [$pos].
+     * Returns string representation of number, which can be passed
+     * in bin2int() function of math wrapper.
+     *
+     * @param string $str
+     * @param int $pos
+     * @param object $err_handler
+     *
+     * @return mixed   string representation of parsed number on success, PEAR_Error object on error
+     * @access private
+     */
+    function _ASN1ParseInt($str, &$pos, $err_handler)
+    {
+        $tmp = Crypt_RSA_KeyPair::_ASN1Parse($str, $pos, $err_handler);
+        if (PEAR::isError($tmp)) {
+            return $tmp;
+        }
+        if ($tmp['tag'] != 0x02) {
+            $errstr = sprintf("wrong ASN tag value: 0x%02x. Expected 0x02 (INTEGER)", $tmp['tag']);
+            $err = PEAR::raiseError($errstr);
+            $err_handler->pushError($err);
+            return $err;
+        }
+        $pos += strlen($tmp['str']);
+
+        return strrev($tmp['str']);
+    }
+
+    /**
      * Crypt_RSA_KeyPair constructor.
      *
      * @param int $key_len bit length of key pair, which will be generated in constructor
@@ -158,7 +257,6 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
      *        perform different operations with big integers.
      *        See contents of Crypt/RSA/Math folder for examples of wrappers.
      *        Read docs/Crypt_RSA/docs/math_wrappers.txt for details.
-     *
      * @param string $error_handler   name of error handler function
      *
      * @access public
@@ -182,10 +280,48 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
             return;
         }
 
-        // generate key pair
-        if (!$this->generate($key_len)) {
-            // error during generating key pair
-            return;
+        if (is_array($key_len)) {
+            // ugly BC hack - it is possible to pass array of [n, e, d] instead of key length
+            list($n, $e, $d) = $key_len;
+
+            // check 2^(e*d) = 2 (mod n)
+            $a_int = $this->_math_obj->bin2int("\x02");
+            $n_int = $this->_math_obj->bin2int($n);
+            $e_int = $this->_math_obj->bin2int($e);
+            $d_int = $this->_math_obj->bin2int($d);
+            $b_int = $this->_math_obj->powMod($a_int, $e_int, $n_int);
+            $b_int = $this->_math_obj->powMod($b_int, $d_int, $n_int);
+            if ($this->_math_obj->cmpAbs($a_int, $b_int)) {
+                $this->pushError(PEAR::raiseError("Incorrect [n, e, d] numbers"));
+                return;
+            }
+
+            // try to create public key object
+            $public_key = &new Crypt_RSA_Key($n, $e, 'public');
+            if ($public_key->isError()) {
+                // error during creating public object
+                $this->pushError($public_key->getLastError());
+                return;
+            }
+
+            // try to create private key object
+            $private_key = &new Crypt_RSA_Key($n, $d, 'private');
+            if ($private_key->isError()) {
+                // error during creating private key object
+                $this->pushError($private_key->getLastError());
+                return;
+            }
+
+            $this->_public_key = $public_key;
+            $this->_private_key = $private_key;
+            $this->_key_len = $public_key->getKeyLength();
+        }
+        else {
+            // generate key pair
+            if (!$this->generate($key_len)) {
+                // error during generating key pair
+                return;
+            }
         }
     }
 
@@ -198,13 +334,14 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
      *        perform different operations with big integers.
      *        See contents of Crypt/RSA/Math folder for examples of wrappers.
      *        Read docs/Crypt_RSA/docs/math_wrappers.txt for details.
+     * @param string $error_handler   name of error handler function
      *
      * @return object   new Crypt_RSA_KeyPair object on success or PEAR_Error object on failure
      * @access public
      */
-    function &factory($key_len, $wrapper_name = 'default')
+    function &factory($key_len, $wrapper_name = 'default', $error_handler = '')
     {
-        $obj = &new Crypt_RSA_KeyPair($key_len, $wrapper_name);
+        $obj = &new Crypt_RSA_KeyPair($key_len, $wrapper_name, $error_handler);
         if ($obj->isError()) {
             // error during creating a new object. Retrurn PEAR_Error object
             return $obj->getLastError();
@@ -239,38 +376,44 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
         // store key length in the _key_len property
         $this->_key_len = $key_len;
 
-        // generate two primes p and q
-        $p_len = (int) ($key_len / 2) + 1;
+        // set [e] to 0x10001 (65537)
+        $e = $this->_math_obj->bin2int("\x01\x00\x01");
+
+        // generate [p], [q] and [n]
+        $p_len = intval(($key_len + 1) / 2);
         $q_len = $key_len - $p_len;
-        $p = $this->_math_obj->getRand($p_len, $this->_random_generator, true);
-        $p = $this->_math_obj->nextPrime($p);
+        $p1 = $q1 = 0;
         do {
+            // generate prime number [$p] with length [$p_len] with the following condition:
+            // GCD($e, $p - 1) = 1
             do {
-                $q = $this->_math_obj->getRand($q_len, $this->_random_generator, true);
-                $tmp_len = $this->_math_obj->bitLen($this->_math_obj->mul($p, $q));
-                if ($tmp_len < $key_len) $q_len++;
-                elseif ($tmp_len > $key_len) $q_len--;
-            } while ($tmp_len != $key_len);
-            $q = $this->_math_obj->nextPrime($q);
-            $tmp = $this->_math_obj->mul($p, $q);
-        } while ($this->_math_obj->bitLen($tmp) != $key_len);
-        // $n - is shared modulus
-        $n = $this->_math_obj->mul($p, $q);
-        // generate public ($e) and private ($d) keys
-        $pq = $this->_math_obj->mul($this->_math_obj->dec($p), $this->_math_obj->dec($q));
-        do {
-            $e = $this->_math_obj->getRand($q_len, $this->_random_generator);
-            if ($this->_math_obj->isZero($e) || $this->_math_obj->isZero($this->_math_obj->dec($e))) {
-                // exponent cannot be equal to 0 or 1
-                continue;
+                $p = $this->_math_obj->getPrime($p_len, $this->_random_generator);
+                $p1 = $this->_math_obj->dec($p);
+                $tmp = $this->_math_obj->GCD($e, $p1);
+            } while (!$this->_math_obj->isOne($tmp));
+            // generate prime number [$q] with length [$q_len] with the following conditions:
+            // GCD($e, $q - 1) = 1
+            // $q != $p
+            do {
+                $q = $this->_math_obj->getPrime($q_len, $this->_random_generator);
+                $q1 = $this->_math_obj->dec($q);
+                $tmp = $this->_math_obj->GCD($e, $q1);
+            } while (!$this->_math_obj->isOne($tmp) && !$this->_math_obj->cmpAbs($q, $p));
+            // if (p < q), then exchange them
+            if ($this->_math_obj->cmpAbs($p, $q) < 0) {
+                $tmp = $p;
+                $p = $q;
+                $q = $tmp;
             }
-            if ($this->_math_obj->isZero($this->_math_obj->dec($this->_math_obj->gcd($e, $pq)))) {
-                // exponent is found
-                break;
-            }
-        } while (true);
+            // calculate n = p * q
+            $n = $this->_math_obj->mul($p, $q);
+        } while ($this->_math_obj->bitLen($n) != $key_len);
+
+        // calculate d = 1/e mod (p - 1) * (q - 1)
+        $pq = $this->_math_obj->mul($p1, $q1);
         $d = $this->_math_obj->invmod($e, $pq);
 
+        // convert [n], [e] and [d] into binary representation
         $modulus = $this->_math_obj->int2bin($n);
         $public_exp = $this->_math_obj->int2bin($e);
         $private_exp = $this->_math_obj->int2bin($d);
@@ -371,6 +514,83 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
     function getKeyLength()
     {
         return $this->_key_len;
+    }
+
+    /**
+     * Retrieve RSA keypair from PEM-encoded string, containing RSA private key.
+     * Example of such string:
+     * -----BEGIN RSA PRIVATE KEY-----
+     * MCsCAQACBHtvbSECAwEAAQIEeYrk3QIDAOF3AgMAjCcCAmdnAgJMawIDALEk
+     * -----END RSA PRIVATE KEY-----
+     *
+     * @param string $str PEM-encoded string
+     * @param string $wrapper_name
+     *        Name of math wrapper, which will be used to
+     *        perform different operations with big integers.
+     *        See contents of Crypt/RSA/Math folder for examples of wrappers.
+     *        Read docs/Crypt_RSA/docs/math_wrappers.txt for details.
+     * @param string $error_handler   name of error handler function
+     *
+     * @return Crypt_RSA_KeyPair object on success, PEAR_Error object on error
+     * @access public
+     */
+    function &fromPEMString($str, $wrapper_name = 'default', $error_handler = '')
+    {
+        // search for base64-encoded private key
+        $err_handler = &new Crypt_RSA_ErrorHandler;
+        $err_handler->setErrorHandler($error_handler);
+
+        if (!preg_match('/-----BEGIN RSA PRIVATE KEY-----[\\r\\n]+([^-]+)-----END RSA PRIVATE KEY-----/', $str, $matches)) {
+            $err = PEAR::raiseError("can't find RSA private key in the string [{$str}]");
+            $err_handler->pushError($err);
+            return $err;
+        }
+
+        // parse private key. It is ASN.1-encoded
+        $str = base64_decode($matches[1]);
+        $pos = 0;
+        $tmp = Crypt_RSA_KeyPair::_ASN1Parse($str, $pos, $err_handler);
+        if (PEAR::isError($tmp)) {
+            return $tmp;
+        }
+        if ($tmp['tag'] != 0x10) {
+            $errstr = sprintf("wrong ASN tag value: 0x%02x. Expected 0x10 (SEQUENCE)", $tmp['tag']);
+            $err = PEAR::raiseError($errstr);
+            $err_handler->pushError($err);
+            return $err;
+        }
+
+        // skip [version] field
+        $tmp = Crypt_RSA_KeyPair::_ASN1ParseInt($str, $pos, $err_handler);
+        if (PEAR::isError($tmp)) {
+            return $tmp;
+        }
+
+        // get [n]
+        $n = Crypt_RSA_KeyPair::_ASN1ParseInt($str, $pos, $err_handler);
+        if (PEAR::isError($n)) {
+            return $n;
+        }
+
+        // get [e]
+        $e = Crypt_RSA_KeyPair::_ASN1ParseInt($str, $pos, $err_handler);
+        if (PEAR::isError($e)) {
+            return $e;
+        }
+
+        // get [d]
+        $d = Crypt_RSA_KeyPair::_ASN1ParseInt($str, $pos, $err_handler);
+        if (PEAR::isError($d)) {
+            return $d;
+        }
+
+        // create Crypt_RSA_KeyPair object.
+        $obj = &new Crypt_RSA_KeyPair(array($n, $e, $d), $wrapper_name, $error_handler);
+        if ($obj->isError()) {
+            return $obj->getLastError();
+        }
+
+        return $obj;
     }
 }
 

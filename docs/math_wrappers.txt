@@ -14,11 +14,10 @@ Math wrapper class must provide interface with following functions:
     powmod($a, $b, $mod) - calculates ($a ^ $b) % $mod
     mul($a, $b) - calculates $a * $b
     cmpAbs($a, $b) - compares abs($a) with abs($b)
-    nextPrime($num) - returns next prime, folloing by the $num
-    getRand($bits_cnt, $rnd_generator, $is_set_higher_bit) - generates random number with length $bits_cnt
+    getPrime($bits_cnt, $rnd_generator) - returns prime with length $bits_cnt
     dec($num) - calculates $num - 1
-    isZero($num) - returns true, if $num is zero
-    gcd($a, $b) - calculates greatest common divider of $an and $b
+    isOne($num) - returns true, if $num is one
+    GCD($a, $b) - calculates greatest common divider of $an and $b
     invmod($num, $mod) - calculates number $num1 such as ($num1 * $num) % $mod = 1
     bitOr($a, $b, $start_bit) - calculates bitwise ($a or ($b << $start_bit))
     subint($num, $start, $bit_len) - returns part of number $num, starting at position $start, with length $len

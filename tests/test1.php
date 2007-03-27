@@ -1,6 +1,4 @@
 <?php
-/* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
-
 /**
  * Crypt_RSA allows to do following operations:
  *     - key pair generation
@@ -21,9 +19,9 @@
  * @category   Encryption
  * @package    Crypt_RSA
  * @author     Alexander Valyalkin <valyala@gmail.com>
- * @copyright  2005 Alexander Valyalkin
+ * @copyright  2005, 2006 Alexander Valyalkin
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    1.0.0
+ * @version    1.1.0
  * @link       http://pear.php.net/package/Crypt_RSA
  */
 
@@ -46,9 +44,9 @@ require_once 'Crypt/RSA.php';
     See contents of /RSA/MathClasses folder for examples.
     BigInt is much faster than BCMath.
 */
-//define('MATH_LIBRARY', 'BigInt');
+define('MATH_LIBRARY', 'BigInt');
 //define('MATH_LIBRARY', 'GMP');
-define('MATH_LIBRARY', 'BCMath');
+//define('MATH_LIBRARY', 'BCMath');
 
 $errors = array();
 
@@ -67,6 +65,39 @@ if ($key_length != 128) {
     $errors[] = "wrong result returned from Crypt_RSA_KeyPair::getKeyLength() function";
 }
 
+// check Crypt_RSA_KeyPair::fromPEMString() function
+$str = "
+-----BEGIN RSA PRIVATE KEY-----
+MIIBPAIBAAJBAKSLT0KZTXYxHr6U/9GYBbnV8vxGkIleDE4aiVMRxuofOjcHDCoI
+qsrVjgP78BrVqWMAAeQ9i0dXxz9zhy0+h7MCAwEAAQJBAI6OL1Yo0Uaj2doN5vDk
+f5l4dfMBA7ovZAPK08zHawlsLvZTzxOQJhKquN01aIJA2wpzixcC9T2PgI6XW6jx
+HkECIQDOEVpVZcE2tSnU3TwulVAC8V82akNAEH8ht6eqsEVWkwIhAMxqMc4Av7hs
+ioAs1H9NvkF01xYVhyiEc4rzgVlmjp5hAiEAi53AOYnmvd1CyWFXrCwn+MZ2/xRC
+Gj7TFBItvH0PjZcCIBi9kaGZPZsYp/qzclSmGCzb81xc5qrkvQdISZOEciaBAiEA
+vLq0MTN4jkO2DOC4qxvKc1l4383nks1g/cljSO/y0pw=
+-----END RSA PRIVATE KEY-----
+";
+
+$keypair = Crypt_RSA_KeyPair::fromPEMString($str, MATH_LIBRARY, 'check_error');
+
+$public_key = $keypair->getPublicKey();
+$private_key = $keypair->getPrivateKey();
+$key_length = $keypair->getKeyLength();
+
+if ($key_length != 512) {
+    $errors[] = "incorrect key length retrieved from PEM file";
+}
+
+$rsa_obj = new Crypt_RSA(array(), MATH_LIBRARY, 'check_error');
+
+$text = 'test text';
+$enc_text = $rsa_obj->encrypt($text, $public_key);
+$dec_text = $rsa_obj->decrypt($enc_text, $private_key);
+
+if ($dec_text != $text) {
+    $errors[] = "decrypted text differs from encrypted text in Crypt_RSA_KeyPair::fromPEMString() check";
+}
+
 // try to generate 256-bit key pair
 $key_pair->generate(256);
 
@@ -74,13 +105,13 @@ $key_pair->generate(256);
 // test all functionality of Crypt_RSA_Key class
 ///////////////////////////////////////////////
 $rsa_obj = new Crypt_RSA(array(), MATH_LIBRARY, 'check_error');
-$key_pair = new Crypt_RSA_KeyPair(8, MATH_LIBRARY, 'check_error'); // extra small key pair (8-bit ;) )
+$key_pair = new Crypt_RSA_KeyPair(32, MATH_LIBRARY, 'check_error'); // extra small key pair (32-bit)
 
 $public_key = $key_pair->getPublicKey();
 $private_key = $key_pair->getPrivateKey();
 
 // check the length of public key
-if ($public_key->getKeyLength() != 8) {
+if ($public_key->getKeyLength() != 32) {
     $errors[] = "wrong result returned from Crypt_RSA_Key::getKeyLength() function";
 }
 

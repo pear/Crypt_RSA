@@ -1,6 +1,4 @@
 <?php
-/* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
-
 /**
  * Crypt_RSA allows to do following operations:
  *     - key pair generation
@@ -18,9 +16,9 @@
  * @category   Encryption
  * @package    Crypt_RSA
  * @author     Alexander Valyalkin <valyala@gmail.com>
- * @copyright  2005 Alexander Valyalkin
+ * @copyright  2005, 2006 Alexander Valyalkin
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    1.0.0
+ * @version    1.1.0
  * @link       http://pear.php.net/package/Crypt_RSA
  */
 
@@ -88,7 +86,7 @@ require_once 'Crypt/RSA/MathLoader.php';
  * @category   Encryption
  * @package    Crypt_RSA
  * @author     Alexander Valyalkin <valyala@gmail.com>
- * @copyright  2005 Alexander Valyalkin
+ * @copyright  2005, 2006 Alexander Valyalkin
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
  * @link       http://pear.php.net/package/Crypt_RSA
  * @version    @package_version@
@@ -143,13 +141,11 @@ class Crypt_RSA_Key extends Crypt_RSA_ErrorHandler
      * @param string $modulus   key modulus
      * @param string $exp       key exponent
      * @param string $key_type  type of the key (public or private)
-     *
      * @param string $wrapper_name
      *        Name of math wrapper, which will be used to
      *        perform different operations with big integers.
      *        See contents of Crypt/RSA/Math folder for examples of wrappers.
      *        Read docs/Crypt_RSA/docs/math_wrappers.txt for details.
-     *
      * @param string $error_handler   name of error handler function
      *
      * @access public
@@ -196,19 +192,19 @@ class Crypt_RSA_Key extends Crypt_RSA_ErrorHandler
      * @param string $modulus   key modulus
      * @param string $exp       key exponent
      * @param string $key_type  type of the key (public or private)
-     *
      * @param string $wrapper_name
      *        Name of math wrapper, which will be used to
      *        perform different operations with big integers.
      *        See contents of Crypt/RSA/Math folder for examples of wrappers.
      *        Read docs/Crypt_RSA/docs/math_wrappers.txt for details.
+     * @param string $error_handler   name of error handler function
      *
      * @return object   new Crypt_RSA_Key object on success or PEAR_Error object on failure
      * @access public
      */
-    function &factory($modulus, $exp, $key_type, $wrapper_name = 'default')
+    function &factory($modulus, $exp, $key_type, $wrapper_name = 'default', $error_handler = '')
     {
-        $obj = &new Crypt_RSA_Key($modulus, $exp, $key_type, $wrapper_name);
+        $obj = &new Crypt_RSA_Key($modulus, $exp, $key_type, $wrapper_name, $error_handler);
         if ($obj->isError()) {
             // error during creating a new object. Retrurn PEAR_Error object
             return $obj->getLastError();

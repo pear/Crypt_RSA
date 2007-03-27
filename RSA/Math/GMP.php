@@ -1,6 +1,4 @@
 <?php
-/* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
-
 /**
  * Crypt_RSA allows to do following operations:
  *     - key pair generation
@@ -18,9 +16,9 @@
  * @category   Encryption
  * @package    Crypt_RSA
  * @author     Alexander Valyalkin <valyala@gmail.com>
- * @copyright  2005 Alexander Valyalkin
+ * @copyright  2005, 2006 Alexander Valyalkin
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    1.0.0
+ * @version    1.1.0
  * @link       http://pear.php.net/package/Crypt_RSA
  */
 
@@ -34,7 +32,7 @@
  * @category   Encryption
  * @package    Crypt_RSA
  * @author     Alexander Valyalkin <valyala@gmail.com>
- * @copyright  2005 Alexander Valyalkin
+ * @copyright  2005, 2006 Alexander Valyalkin
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
  * @link       http://pear.php.net/package/Crypt_RSA
  * @version    @package_version@
@@ -160,44 +158,34 @@ class Crypt_RSA_Math_GMP
     }
 
     /**
-     * Finds next strong pseudoprime number, following after $num
-     *
-     * @param gmp resource $num
-     * @return gmp resource
-     * @access public
-     */
-    function nextPrime($num)
-    {
-        if (!gmp_cmp(gmp_mod($num, 2), 0)) {
-            $num = gmp_sub($num, 1);
-        }
-        do {
-            $num = gmp_add($num, 2);
-        } while (!gmp_prob_prime($num));
-        return $num;
-    }
-
-    /**
-     * Generates random number wich bit length $bits_cnt,
+     * Generates prime number with length $bits_cnt
      * using $random_generator as random generator function.
-     * If is_set_higher_bit != false, then higer bit of result
-     * will be set to 1.
      *
      * @param int $bits_cnt
      * @param string $rnd_generator
-     * @return gmp resource
      * @access public
      */
-    function getRand($bits_cnt, $random_generator, $is_set_higher_bit = false)
+    function getPrime($bits_cnt, $random_generator)
     {
         $bytes_cnt = intval($bits_cnt / 8);
         $bits_cnt %= 8;
-        $result = $is_set_higher_bit ? 1 : (call_user_func($random_generator) & 1);
-        for ($i = 0; $i <= $bytes_cnt; $i++) {
-            $result = gmp_add(gmp_mul($result, 256), call_user_func($random_generator) & 0xff);
-        }
-        $result = gmp_div($result, 1 << (9 - $bits_cnt));
-        return $result;
+        do {
+            // generate random number with length [$bits_cnt]
+            $num = 1;
+            for ($i = 0; $i <= $bytes_cnt; $i++) {
+                $num = gmp_add(gmp_mul($num, '256'), call_user_func($random_generator) & 0xff);
+            }
+            $num = gmp_div($num, 1 << (8 - $bits_cnt));
+
+            // search next closest prime number after [$num]
+            if (!gmp_cmp(gmp_mod($num, '2'), '0')) {
+                $num = gmp_add($num, '1');
+            }
+            while (!gmp_prob_prime($num)) {
+                $num = gmp_add($num, '2');
+            }
+        } while ($this->bitLen($num) != $bits_cnt);
+        return $num;
     }
 
     /**
@@ -213,15 +201,15 @@ class Crypt_RSA_Math_GMP
     }
 
     /**
-     * Returns true, if $num is equal to zero. Else returns false
+     * Returns true, if $num is equal to one. Else returns false
      *
      * @param gmp resource $num
      * @return bool
      * @access public
      */
-    function isZero($num)
+    function isOne($num)
     {
-        return !gmp_cmp($num, 0);
+        return !gmp_cmp($num, 1);
     }
 
     /**
@@ -232,7 +220,7 @@ class Crypt_RSA_Math_GMP
      * @return gmp resource
      * @access public
      */
-    function gcd($num1, $num2)
+    function GCD($num1, $num2)
     {
         return gmp_gcd($num1, $num2);
     }

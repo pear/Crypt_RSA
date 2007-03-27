@@ -1,6 +1,4 @@
 <?php
-/* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
-
 /**
  * Crypt_RSA allows to do following operations:
  *     - key pair generation
@@ -18,9 +16,9 @@
  * @category   Encryption
  * @package    Crypt_RSA
  * @author     Alexander Valyalkin <valyala@gmail.com>
- * @copyright  2005 Alexander Valyalkin
+ * @copyright  2005, 2006 Alexander Valyalkin
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    1.0.0
+ * @version    1.1.0
  * @link       http://pear.php.net/package/Crypt_RSA
  */
 
@@ -34,7 +32,7 @@
  * @category   Encryption
  * @package    Crypt_RSA
  * @author     Alexander Valyalkin <valyala@gmail.com>
- * @copyright  2005 Alexander Valyalkin
+ * @copyright  2005, 2006 Alexander Valyalkin
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
  * @link       http://pear.php.net/package/Crypt_RSA
  * @version    @package_version@
@@ -153,32 +151,21 @@ class Crypt_RSA_Math_BigInt
     }
 
     /**
-     * Finds next strong pseudoprime number, following after $num
-     *
-     * @param big_int resource $num
-     * @return big_int resource
-     * @access public
-     */
-    function nextPrime($num)
-    {
-        return bi_next_prime($num);
-    }
-
-    /**
-     * Generates random number wich bit length $bits_cnt,
+     * Generates prime number with length $bits_cnt
      * using $random_generator as random generator function.
-     * If is_set_higher_bit != false, then higer bit of result
-     * will be set to 1.
      *
      * @param int $bits_cnt
      * @param string $rnd_generator
-     * @return big_int resource
      * @access public
      */
-    function getRand($bits_cnt, $random_generator, $is_set_higher_bit = false)
+    function getPrime($bits_cnt, $random_generator)
     {
-        $tmp = bi_rand($bits_cnt, $random_generator);
-        return $is_set_higher_bit ? bi_set_bit($tmp, $bits_cnt - 1) : $tmp;
+        do {
+            $num = bi_rand($bits_cnt, $random_generator);
+            bi_set_bit($num, $bits_cnt - 1);
+            $num = bi_next_prime($num);
+        } while (bi_bit_len($num) != $bits_cnt);
+        return $num;
     }
 
     /**
@@ -194,15 +181,15 @@ class Crypt_RSA_Math_BigInt
     }
 
     /**
-     * Returns true, if $num is equal to zero. Else returns false
+     * Returns true, if $num is equal to 1. Else returns false
      *
      * @param big_int resource $num
      * @return bool
      * @access public
      */
-    function isZero($num)
+    function isOne($num)
     {
-        return bi_is_zero($num);
+        return bi_is_one($num);
     }
 
     /**
@@ -213,7 +200,7 @@ class Crypt_RSA_Math_BigInt
      * @return big_int resource
      * @access public
      */
-    function gcd($num1, $num2)
+    function GCD($num1, $num2)
     {
         return bi_gcd($num1, $num2);
     }

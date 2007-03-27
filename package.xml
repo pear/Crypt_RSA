@@ -1,150 +1,151 @@
-<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
-<package version="1.0">
-  <name>Crypt_RSA</name>
-  <summary>Provides RSA-like key generation, encryption/decryption, signing and signature checking</summary>
-  <description>This package allows you to use two-key strong cryptography like RSA with arbitrary key length.
+<package version="1.0" packagerversion="1.4.6">
+ <name>Crypt_RSA</name>
+ <summary>Provides RSA-like key generation, encryption/decryption, signing and signature checking</summary>
+ <description>This package allows you to use two-key strong cryptography like RSA with arbitrary key length.
 It uses one of the following extensions for math calculations:
  - PECL big_int extension ( http://pecl.php.net/packages/big_int ) version greater than or equal to 1.0.3
  - PHP GMP extension ( http://php.net/gmp )
- - PHP BCMath extension ( http://php.net/manual/en/ref.bc.php ) for both PHP4 and PHP5</description>
-  <maintainers>
-    <maintainer>
-      <user>valyala</user>
-      <name>Alexander Valyalkin</name>
-      <email>valyala@gmail.com</email>
-      <role>lead</role>
-    </maintainer>
+ - PHP BCMath extension ( http://php.net/manual/en/ref.bc.php ) for both PHP4 and PHP5
+ </description>
+ <maintainers>
+  <maintainer>
+   <user>valyala</user>
+   <name>Alexander Valyalkin</name>
+   <email>valyala@gmail.com</email>
+   <role>lead</role>
+  </maintainer>
   </maintainers>
-  <release>
-    <version>1.0.0</version>
-    <date>2005-05-11</date>
-    <license>PHP</license>
-    <state>stable</state>
-    <notes>* it is the first stable release of the package
-* added optional $math_wrapper parameter to Crypt_RSA, Crypt_RSA_Key and Crypt_RSA_KeyPair constructors. It allows to catch errors by user's error handler during objects construction
-* updated documentation in docs/Crypt_RSA/docs folder. But it is still very ugly ;)</notes>
-    <deps>
-      <dep type="ext" rel="has" optional="yes">bcmath</dep>
-      <dep type="ext" rel="has" optional="yes">gmp</dep>
-      <dep type="pkg" rel="ge" version="1.0.3" optional="yes">big_int</dep>
-    </deps>
-    <provides type="class" name="Crypt_RSA" />
-    <provides type="function" name="Crypt_RSA::factory" />
-    <provides type="function" name="Crypt_RSA::setParams" />
-    <provides type="function" name="Crypt_RSA::encrypt" />
-    <provides type="function" name="Crypt_RSA::encryptBinary" />
-    <provides type="function" name="Crypt_RSA::decrypt" />
-    <provides type="function" name="Crypt_RSA::decryptBinary" />
-    <provides type="function" name="Crypt_RSA::createSign" />
-    <provides type="function" name="Crypt_RSA::validateSign" />
-    <provides type="function" name="Crypt_RSA::isError" />
-    <provides type="function" name="Crypt_RSA::getErrorList" />
-    <provides type="function" name="Crypt_RSA::getLastError" />
-    <provides type="function" name="Crypt_RSA::pushError" />
-    <provides type="function" name="Crypt_RSA::getErrorHandler" />
-    <provides type="function" name="Crypt_RSA::setErrorHandler" />
-    <provides type="class" name="Crypt_RSA_Key" />
-    <provides type="function" name="Crypt_RSA_Key::factory" />
-    <provides type="function" name="Crypt_RSA_Key::getKeyLength" />
-    <provides type="function" name="Crypt_RSA_Key::getModulus" />
-    <provides type="function" name="Crypt_RSA_Key::getExponent" />
-    <provides type="function" name="Crypt_RSA_Key::getKeyType" />
-    <provides type="function" name="Crypt_RSA_Key::toString" />
-    <provides type="function" name="Crypt_RSA_Key::fromString" />
-    <provides type="function" name="Crypt_RSA_Key::isValid" />
-    <provides type="function" name="Crypt_RSA_Key::isError" />
-    <provides type="function" name="Crypt_RSA_Key::getErrorList" />
-    <provides type="function" name="Crypt_RSA_Key::getLastError" />
-    <provides type="function" name="Crypt_RSA_Key::pushError" />
-    <provides type="function" name="Crypt_RSA_Key::getErrorHandler" />
-    <provides type="function" name="Crypt_RSA_Key::setErrorHandler" />
-    <provides type="class" name="Crypt_RSA_KeyPair" />
-    <provides type="function" name="Crypt_RSA_KeyPair::factory" />
-    <provides type="function" name="Crypt_RSA_KeyPair::generate" />
-    <provides type="function" name="Crypt_RSA_KeyPair::getPublicKey" />
-    <provides type="function" name="Crypt_RSA_KeyPair::getPrivateKey" />
-    <provides type="function" name="Crypt_RSA_KeyPair::setRandomGenerator" />
-    <provides type="function" name="Crypt_RSA_KeyPair::getKeyLength" />
-    <provides type="function" name="Crypt_RSA_KeyPair::isError" />
-    <provides type="function" name="Crypt_RSA_KeyPair::getErrorList" />
-    <provides type="function" name="Crypt_RSA_KeyPair::getLastError" />
-    <provides type="function" name="Crypt_RSA_KeyPair::pushError" />
-    <provides type="function" name="Crypt_RSA_KeyPair::getErrorHandler" />
-    <provides type="function" name="Crypt_RSA_KeyPair::setErrorHandler" />
-    <provides type="class" name="Crypt_RSA_ErrorHandler" />
-    <provides type="function" name="Crypt_RSA_ErrorHandler::isError" />
-    <provides type="function" name="Crypt_RSA_ErrorHandler::getErrorList" />
-    <provides type="function" name="Crypt_RSA_ErrorHandler::getLastError" />
-    <provides type="function" name="Crypt_RSA_ErrorHandler::pushError" />
-    <provides type="function" name="Crypt_RSA_ErrorHandler::getErrorHandler" />
-    <provides type="function" name="Crypt_RSA_ErrorHandler::setErrorHandler" />
-    <provides type="class" name="Crypt_RSA_MathLoader" />
-    <provides type="function" name="Crypt_RSA_MathLoader::loadWrapper" />
-    <provides type="class" name="Crypt_RSA_Math_BigInt" />
-    <provides type="function" name="Crypt_RSA_Math_BigInt::bin2int" />
-    <provides type="function" name="Crypt_RSA_Math_BigInt::int2bin" />
-    <provides type="function" name="Crypt_RSA_Math_BigInt::powmod" />
-    <provides type="function" name="Crypt_RSA_Math_BigInt::mul" />
-    <provides type="function" name="Crypt_RSA_Math_BigInt::cmpAbs" />
-    <provides type="function" name="Crypt_RSA_Math_BigInt::nextPrime" />
-    <provides type="function" name="Crypt_RSA_Math_BigInt::getRand" />
-    <provides type="function" name="Crypt_RSA_Math_BigInt::dec" />
-    <provides type="function" name="Crypt_RSA_Math_BigInt::isZero" />
-    <provides type="function" name="Crypt_RSA_Math_BigInt::gcd" />
-    <provides type="function" name="Crypt_RSA_Math_BigInt::invmod" />
-    <provides type="function" name="Crypt_RSA_Math_BigInt::bitLen" />
-    <provides type="function" name="Crypt_RSA_Math_BigInt::bitOr" />
-    <provides type="function" name="Crypt_RSA_Math_BigInt::subint" />
-    <provides type="function" name="Crypt_RSA_Math_BigInt::getWrapperName" />
-    <provides type="class" name="Crypt_RSA_Math_BCMath" />
-    <provides type="function" name="Crypt_RSA_Math_BCMath::bin2int" />
-    <provides type="function" name="Crypt_RSA_Math_BCMath::int2bin" />
-    <provides type="function" name="Crypt_RSA_Math_BCMath::powmod" />
-    <provides type="function" name="Crypt_RSA_Math_BCMath::mul" />
-    <provides type="function" name="Crypt_RSA_Math_BCMath::cmpAbs" />
-    <provides type="function" name="Crypt_RSA_Math_BCMath::nextPrime" />
-    <provides type="function" name="Crypt_RSA_Math_BCMath::getRand" />
-    <provides type="function" name="Crypt_RSA_Math_BCMath::dec" />
-    <provides type="function" name="Crypt_RSA_Math_BCMath::isZero" />
-    <provides type="function" name="Crypt_RSA_Math_BCMath::gcd" />
-    <provides type="function" name="Crypt_RSA_Math_BCMath::invmod" />
-    <provides type="function" name="Crypt_RSA_Math_BCMath::bitLen" />
-    <provides type="function" name="Crypt_RSA_Math_BCMath::bitOr" />
-    <provides type="function" name="Crypt_RSA_Math_BCMath::subint" />
-    <provides type="function" name="Crypt_RSA_Math_BCMath::getWrapperName" />
-    <provides type="class" name="Crypt_RSA_Math_GMP" />
-    <provides type="function" name="Crypt_RSA_Math_GMP::bin2int" />
-    <provides type="function" name="Crypt_RSA_Math_GMP::int2bin" />
-    <provides type="function" name="Crypt_RSA_Math_GMP::powmod" />
-    <provides type="function" name="Crypt_RSA_Math_GMP::mul" />
-    <provides type="function" name="Crypt_RSA_Math_GMP::cmpAbs" />
-    <provides type="function" name="Crypt_RSA_Math_GMP::nextPrime" />
-    <provides type="function" name="Crypt_RSA_Math_GMP::getRand" />
-    <provides type="function" name="Crypt_RSA_Math_GMP::dec" />
-    <provides type="function" name="Crypt_RSA_Math_GMP::isZero" />
-    <provides type="function" name="Crypt_RSA_Math_GMP::gcd" />
-    <provides type="function" name="Crypt_RSA_Math_GMP::invmod" />
-    <provides type="function" name="Crypt_RSA_Math_GMP::bitLen" />
-    <provides type="function" name="Crypt_RSA_Math_GMP::bitOr" />
-    <provides type="function" name="Crypt_RSA_Math_GMP::subint" />
-    <provides type="function" name="Crypt_RSA_Math_GMP::getWrapperName" />
-    <filelist>
-      <file role="php" baseinstalldir="Crypt" md5sum="169de84b36724ae7b359f0015e2209df" name="RSA.php"/>
-      <file role="php" baseinstalldir="Crypt" md5sum="b74b1a3b3257db7c513e2ecb95f7cbb5" name="RSA\ErrorHandler.php"/>
-      <file role="php" baseinstalldir="Crypt" md5sum="518823a3c9d5d73783f7d51fc5f652a3" name="RSA\Key.php"/>
-      <file role="php" baseinstalldir="Crypt" md5sum="c40b4c7ddd98f66feeb062ae2377a469" name="RSA\KeyPair.php"/>
-      <file role="php" baseinstalldir="Crypt" md5sum="a927b9050e96d4ae50b10bb00cfcb91d" name="RSA\MathLoader.php"/>
-      <file role="php" baseinstalldir="Crypt" md5sum="079773dbbf41b36e926deb32fda3ee24" name="RSA\Math\BCMath.php"/>
-      <file role="php" baseinstalldir="Crypt" md5sum="f3706db76f00783e64ad478e9597e204" name="RSA\Math\BigInt.php"/>
-      <file role="php" baseinstalldir="Crypt" md5sum="fc03fa1b507a25f4832c6730c7b11768" name="RSA\Math\GMP.php"/>
-      <file role="doc" baseinstalldir="Crypt" md5sum="8e699cdffe3e4e3d1341e2f1dc81d29d" name="CREDITS"/>
-      <file role="doc" baseinstalldir="Crypt" md5sum="0e51aca28890cb3d18311aa04b325184" name="LICENSE"/>
-      <file role="doc" baseinstalldir="Crypt" md5sum="d772bb3eb1731824e05efd572cdd0a5f" name="docs\Crypt_RSA.txt"/>
-      <file role="doc" baseinstalldir="Crypt" md5sum="db20c3324c44b51871ab25b28485359c" name="docs\math_wrappers.txt"/>
-      <file role="doc" baseinstalldir="Crypt" md5sum="f95c141a26e0feed3f1db15ad89bac8d" name="examples\web_interface.php"/>
-      <file role="test" baseinstalldir="Crypt" md5sum="f5aa5b61a40121e9d5fd1f96d7a7fefe" name="tests\test1.php"/>
-      <file role="test" baseinstalldir="Crypt" md5sum="dab099e2d591d3c892b3d422a66f3a3c" name="tests\test2.php"/>
-    </filelist>
-  </release>
+ <release>
+  <version>1.1.0b</version>
+  <date>2006-02-23</date>
+  <license>PHP</license>
+  <state>beta</state>
+  <notes>* added fromPEMString() function in Crypt_RSA_KeyPair class. This function allows to retrieve RSA keypair from PEM-encoded strings. Thanks to all the people who sponsored .pem developement
+* modified key generation algorithm
+* added optional &apos;error_handler&apos; parameter to factory() methods in all classes
+* modified math wrapper interface: isZero(), nextPrime() and getRand() substituted by isOne() and getPrime() functions
+  </notes>
+  <deps>
+   <dep type="ext" rel="has" optional="yes">bcmath</dep>
+   <dep type="ext" rel="has" optional="yes">gmp</dep>
+   <dep type="pkg" rel="ge" version="1.0.3" optional="yes">big_int</dep>
+  </deps>
+  <provides type="class" name="Crypt_RSA" />
+  <provides type="function" name="Crypt_RSA::factory" />
+  <provides type="function" name="Crypt_RSA::setParams" />
+  <provides type="function" name="Crypt_RSA::encrypt" />
+  <provides type="function" name="Crypt_RSA::encryptBinary" />
+  <provides type="function" name="Crypt_RSA::decrypt" />
+  <provides type="function" name="Crypt_RSA::decryptBinary" />
+  <provides type="function" name="Crypt_RSA::createSign" />
+  <provides type="function" name="Crypt_RSA::validateSign" />
+  <provides type="function" name="Crypt_RSA::isError" />
+  <provides type="function" name="Crypt_RSA::getErrorList" />
+  <provides type="function" name="Crypt_RSA::getLastError" />
+  <provides type="function" name="Crypt_RSA::pushError" />
+  <provides type="function" name="Crypt_RSA::getErrorHandler" />
+  <provides type="function" name="Crypt_RSA::setErrorHandler" />
+  <provides type="class" name="Crypt_RSA_Key" />
+  <provides type="function" name="Crypt_RSA_Key::factory" />
+  <provides type="function" name="Crypt_RSA_Key::getKeyLength" />
+  <provides type="function" name="Crypt_RSA_Key::getModulus" />
+  <provides type="function" name="Crypt_RSA_Key::getExponent" />
+  <provides type="function" name="Crypt_RSA_Key::getKeyType" />
+  <provides type="function" name="Crypt_RSA_Key::toString" />
+  <provides type="function" name="Crypt_RSA_Key::fromString" />
+  <provides type="function" name="Crypt_RSA_Key::isValid" />
+  <provides type="function" name="Crypt_RSA_Key::isError" />
+  <provides type="function" name="Crypt_RSA_Key::getErrorList" />
+  <provides type="function" name="Crypt_RSA_Key::getLastError" />
+  <provides type="function" name="Crypt_RSA_Key::pushError" />
+  <provides type="function" name="Crypt_RSA_Key::getErrorHandler" />
+  <provides type="function" name="Crypt_RSA_Key::setErrorHandler" />
+  <provides type="class" name="Crypt_RSA_KeyPair" />
+  <provides type="function" name="Crypt_RSA_KeyPair::factory" />
+  <provides type="function" name="Crypt_RSA_KeyPair::generate" />
+  <provides type="function" name="Crypt_RSA_KeyPair::getPublicKey" />
+  <provides type="function" name="Crypt_RSA_KeyPair::getPrivateKey" />
+  <provides type="function" name="Crypt_RSA_KeyPair::setRandomGenerator" />
+  <provides type="function" name="Crypt_RSA_KeyPair::getKeyLength" />
+  <provides type="function" name="Crypt_RSA_KeyPair::fromPEMString" />
+  <provides type="function" name="Crypt_RSA_KeyPair::isError" />
+  <provides type="function" name="Crypt_RSA_KeyPair::getErrorList" />
+  <provides type="function" name="Crypt_RSA_KeyPair::getLastError" />
+  <provides type="function" name="Crypt_RSA_KeyPair::pushError" />
+  <provides type="function" name="Crypt_RSA_KeyPair::getErrorHandler" />
+  <provides type="function" name="Crypt_RSA_KeyPair::setErrorHandler" />
+  <provides type="class" name="Crypt_RSA_ErrorHandler" />
+  <provides type="function" name="Crypt_RSA_ErrorHandler::isError" />
+  <provides type="function" name="Crypt_RSA_ErrorHandler::getErrorList" />
+  <provides type="function" name="Crypt_RSA_ErrorHandler::getLastError" />
+  <provides type="function" name="Crypt_RSA_ErrorHandler::pushError" />
+  <provides type="function" name="Crypt_RSA_ErrorHandler::getErrorHandler" />
+  <provides type="function" name="Crypt_RSA_ErrorHandler::setErrorHandler" />
+  <provides type="class" name="Crypt_RSA_MathLoader" />
+  <provides type="function" name="Crypt_RSA_MathLoader::loadWrapper" />
+  <provides type="class" name="Crypt_RSA_Math_BigInt" />
+  <provides type="function" name="Crypt_RSA_Math_BigInt::bin2int" />
+  <provides type="function" name="Crypt_RSA_Math_BigInt::int2bin" />
+  <provides type="function" name="Crypt_RSA_Math_BigInt::powmod" />
+  <provides type="function" name="Crypt_RSA_Math_BigInt::mul" />
+  <provides type="function" name="Crypt_RSA_Math_BigInt::cmpAbs" />
+  <provides type="function" name="Crypt_RSA_Math_BigInt::getPrime" />
+  <provides type="function" name="Crypt_RSA_Math_BigInt::dec" />
+  <provides type="function" name="Crypt_RSA_Math_BigInt::isOne" />
+  <provides type="function" name="Crypt_RSA_Math_BigInt::GCD" />
+  <provides type="function" name="Crypt_RSA_Math_BigInt::invmod" />
+  <provides type="function" name="Crypt_RSA_Math_BigInt::bitLen" />
+  <provides type="function" name="Crypt_RSA_Math_BigInt::bitOr" />
+  <provides type="function" name="Crypt_RSA_Math_BigInt::subint" />
+  <provides type="function" name="Crypt_RSA_Math_BigInt::getWrapperName" />
+  <provides type="class" name="Crypt_RSA_Math_BCMath" />
+  <provides type="function" name="Crypt_RSA_Math_BCMath::bin2int" />
+  <provides type="function" name="Crypt_RSA_Math_BCMath::int2bin" />
+  <provides type="function" name="Crypt_RSA_Math_BCMath::powmod" />
+  <provides type="function" name="Crypt_RSA_Math_BCMath::mul" />
+  <provides type="function" name="Crypt_RSA_Math_BCMath::cmpAbs" />
+  <provides type="function" name="Crypt_RSA_Math_BCMath::getPrime" />
+  <provides type="function" name="Crypt_RSA_Math_BCMath::dec" />
+  <provides type="function" name="Crypt_RSA_Math_BCMath::isOne" />
+  <provides type="function" name="Crypt_RSA_Math_BCMath::GCD" />
+  <provides type="function" name="Crypt_RSA_Math_BCMath::invmod" />
+  <provides type="function" name="Crypt_RSA_Math_BCMath::bitLen" />
+  <provides type="function" name="Crypt_RSA_Math_BCMath::bitOr" />
+  <provides type="function" name="Crypt_RSA_Math_BCMath::subint" />
+  <provides type="function" name="Crypt_RSA_Math_BCMath::getWrapperName" />
+  <provides type="class" name="Crypt_RSA_Math_GMP" />
+  <provides type="function" name="Crypt_RSA_Math_GMP::bin2int" />
+  <provides type="function" name="Crypt_RSA_Math_GMP::int2bin" />
+  <provides type="function" name="Crypt_RSA_Math_GMP::powmod" />
+  <provides type="function" name="Crypt_RSA_Math_GMP::mul" />
+  <provides type="function" name="Crypt_RSA_Math_GMP::cmpAbs" />
+  <provides type="function" name="Crypt_RSA_Math_GMP::getPrime" />
+  <provides type="function" name="Crypt_RSA_Math_GMP::dec" />
+  <provides type="function" name="Crypt_RSA_Math_GMP::isOne" />
+  <provides type="function" name="Crypt_RSA_Math_GMP::GCD" />
+  <provides type="function" name="Crypt_RSA_Math_GMP::invmod" />
+  <provides type="function" name="Crypt_RSA_Math_GMP::bitLen" />
+  <provides type="function" name="Crypt_RSA_Math_GMP::bitOr" />
+  <provides type="function" name="Crypt_RSA_Math_GMP::subint" />
+  <provides type="function" name="Crypt_RSA_Math_GMP::getWrapperName" />
+  <filelist>
+   <file role="php" baseinstalldir="Crypt" md5sum="4dc4fb4926c0fe36966b2926b0efa840" name="RSA.php"/>
+   <file role="php" baseinstalldir="Crypt" md5sum="77076008a77505ce72a7fcc0c48f9656" name="RSA/ErrorHandler.php"/>
+   <file role="php" baseinstalldir="Crypt" md5sum="b6a063ef6c25c2589e92401c72bb9ba8" name="RSA/Key.php"/>
+   <file role="php" baseinstalldir="Crypt" md5sum="5a8c889b028febf7c5858b8d25ac6d20" name="RSA/KeyPair.php"/>
+   <file role="php" baseinstalldir="Crypt" md5sum="a1bb53e6b89e5afb9f8fddcb7327442e" name="RSA/MathLoader.php"/>
+   <file role="php" baseinstalldir="Crypt" md5sum="2c15981a896aa267b340ce34157355fc" name="RSA/Math/BCMath.php"/>
+   <file role="php" baseinstalldir="Crypt" md5sum="da034f2ea0e1acff984b3ee0490b78dd" name="RSA/Math/BigInt.php"/>
+   <file role="php" baseinstalldir="Crypt" md5sum="036f2082efdac1111d5ea668f90732f3" name="RSA/Math/GMP.php"/>
+   <file role="doc" baseinstalldir="Crypt" md5sum="8e699cdffe3e4e3d1341e2f1dc81d29d" name="CREDITS"/>
+   <file role="doc" baseinstalldir="Crypt" md5sum="f4c7bb36cd36382f0cf5fd4594f73fee" name="LICENSE"/>
+   <file role="doc" baseinstalldir="Crypt" md5sum="ca9d024c219dba927b4aee2dc1fb5737" name="docs/Crypt_RSA.txt"/>
+   <file role="doc" baseinstalldir="Crypt" md5sum="78b93d6745a22efeafea6a851c488443" name="docs/math_wrappers.txt"/>
+   <file role="doc" baseinstalldir="Crypt" md5sum="2f6ff6d854f5ca83fcaf3ce922cba3da" name="examples/web_interface.php"/>
+   <file role="test" baseinstalldir="Crypt" md5sum="5e6d9026f1907003a0af23c08f9f27cb" name="tests/test1.php"/>
+   <file role="test" baseinstalldir="Crypt" md5sum="4c5a5a7bd18ee31cb21b57bf2eb96b43" name="tests/test2.php"/>
+  </filelist>
+ </release>
 </package>
