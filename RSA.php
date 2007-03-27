@@ -183,14 +183,19 @@ class Crypt_RSA extends Crypt_RSA_ErrorHandler
      *        See contents of Crypt/RSA/Math folder for examples of wrappers.
      *        Read docs/Crypt_RSA/docs/math_wrappers.txt for details.
      *
+     * @param string $error_handler   name of error handler function
+     *
      * @access public
      */
-    function Crypt_RSA($params = null, $wrapper_name = 'default')
+    function Crypt_RSA($params = null, $wrapper_name = 'default', $error_handler = '')
     {
+        // set error handler
+        $this->setErrorHandler($error_handler);
         // try to load math wrapper
         $obj = &Crypt_RSA_MathLoader::loadWrapper($wrapper_name);
         if (PEAR::isError($obj)) {
             // error during loading of math wrapper
+            // Crypt_RSA object is partially constructed.
             $this->pushError($obj);
             return;
         }

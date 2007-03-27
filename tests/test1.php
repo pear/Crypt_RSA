@@ -57,9 +57,7 @@ echo "Start of testing Crypt_RSA package with [", MATH_LIBRARY, "] math library.
 ///////////////////////////////////////////////
 // test all functionality of Crypt_RSA_KeyPair class
 ///////////////////////////////////////////////
-$key_pair = new Crypt_RSA_KeyPair(128, MATH_LIBRARY);
-check_error($key_pair);
-$key_pair->setErrorHandler('check_error');
+$key_pair = new Crypt_RSA_KeyPair(128, MATH_LIBRARY, 'check_error');
 
 $public_key = $key_pair->getPublicKey();
 $private_key = $key_pair->getPrivateKey();
@@ -75,11 +73,8 @@ $key_pair->generate(256);
 ///////////////////////////////////////////////
 // test all functionality of Crypt_RSA_Key class
 ///////////////////////////////////////////////
-$rsa_obj = new Crypt_RSA(array(), MATH_LIBRARY);
-check_error($rsa_obj);
-$rsa_obj->setErrorHandler('check_error');
-$key_pair = new Crypt_RSA_KeyPair(8, MATH_LIBRARY); // extra small key pair (8-bit ;) )
-check_error($key_pair);
+$rsa_obj = new Crypt_RSA(array(), MATH_LIBRARY, 'check_error');
+$key_pair = new Crypt_RSA_KeyPair(8, MATH_LIBRARY, 'check_error'); // extra small key pair (8-bit ;) )
 
 $public_key = $key_pair->getPublicKey();
 $private_key = $key_pair->getPrivateKey();
@@ -90,8 +85,7 @@ if ($public_key->getKeyLength() != 8) {
 }
 
 // construct copy of $public_key
-$public_key1 = new Crypt_RSA_Key($public_key->getModulus(), $public_key->getExponent(), $public_key->getKeyType(), MATH_LIBRARY);
-check_error($public_key1);
+$public_key1 = new Crypt_RSA_Key($public_key->getModulus(), $public_key->getExponent(), $public_key->getKeyType(), MATH_LIBRARY, 'check_error');
 
 // serialize $private_key
 $private_key_str = $private_key->toString();
@@ -102,8 +96,7 @@ $private_key_str = $private_key->toString();
 $text = '1234567890';
 $enc_text = $rsa_obj->encrypt($text, $public_key1);
 
-$private_key = Crypt_RSA_Key::fromString($private_key_str, MATH_LIBRARY);
-check_error($private_key);
+$private_key = Crypt_RSA_Key::fromString($private_key_str, MATH_LIBRARY, 'check_error');
 $text1 = $rsa_obj->decrypt($enc_text, $private_key);
 
 if ($text != $text1) {
@@ -114,14 +107,10 @@ if ($text != $text1) {
 // test all functionality of Crypt_RSA class
 ///////////////////////////////////////////////
 // create Crypt_RSA object
-$rsa_obj = new Crypt_RSA(array(), MATH_LIBRARY);
-check_error($rsa_obj);
-$rsa_obj->setErrorHandler('check_error');
+$rsa_obj = new Crypt_RSA(array(), MATH_LIBRARY, 'check_error');
 
 // create Crypt_RSA_KeyPair object
-$key_pair = new Crypt_RSA_KeyPair(256, MATH_LIBRARY);
-check_error($key_pair);
-$rsa_obj->setErrorHandler('check_error');
+$key_pair = new Crypt_RSA_KeyPair(256, MATH_LIBRARY, 'check_error');
 
 // check encrypting/decrypting function's behaviour
 $params = array(

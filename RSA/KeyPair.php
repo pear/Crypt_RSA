@@ -159,10 +159,14 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
      *        See contents of Crypt/RSA/Math folder for examples of wrappers.
      *        Read docs/Crypt_RSA/docs/math_wrappers.txt for details.
      *
+     * @param string $error_handler   name of error handler function
+     *
      * @access public
      */
-    function Crypt_RSA_KeyPair($key_len, $wrapper_name = 'default')
+    function Crypt_RSA_KeyPair($key_len, $wrapper_name = 'default', $error_handler = '')
     {
+        // set error handler
+        $this->setErrorHandler($error_handler);
         // try to load math wrapper
         $obj = &Crypt_RSA_MathLoader::loadWrapper($wrapper_name);
         if (PEAR::isError($obj)) {
@@ -276,7 +280,8 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
             $modulus,
             $public_exp,
             'public',
-            $this->_math_obj->getWrapperName()
+            $this->_math_obj->getWrapperName(),
+            $this->_error_handler
         );
         if ($obj->isError()) {
             // error during creating public object
@@ -290,7 +295,8 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
             $modulus,
             $private_exp,
             'private',
-            $this->_math_obj->getWrapperName()
+            $this->_math_obj->getWrapperName(),
+            $this->_error_handler
         );
         if ($obj->isError()) {
             // error during creating private key object

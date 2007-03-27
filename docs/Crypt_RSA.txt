@@ -1,3 +1,10 @@
 Readme for Crypt_RSA PEAR package.
 
-sorry, but this file is under construction yet
+see the following scripts to understand, how to work with this package:
+- docs/Crypt_RSA/examples/web_interface.php
+  web interface, which provides key generation,
+  encryption, decryption, signature creating and validation.
+
+- tests/Crypt_RSA/tests/test1.php
+- tests/Crypt_RSA/tests/test2.php
+
