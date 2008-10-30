@@ -232,7 +232,7 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
             $len = 0;
             while ($n-- && $pos < $max_pos) {
                 $len <<= 8;
-                $len |= ord($in[$pos++]);
+                $len |= ord($str[$pos++]);
             }
         }
         if ($pos >= $max_pos || $len > $max_pos - $pos) {
