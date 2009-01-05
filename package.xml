@@ -1,162 +1,94 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
-<package version="1.0" packagerversion="1.4.6">
+<?xml version="1.0" encoding="UTF-8"?>
+<package packagerversion="1.7.2" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
  <name>Crypt_RSA</name>
+ <channel>pear.php.net</channel>
  <summary>Provides RSA-like key generation, encryption/decryption, signing and signature checking</summary>
  <description>This package allows you to use two-key strong cryptography like RSA with arbitrary key length.
 It uses one of the following extensions for math calculations:
  - PECL big_int extension ( http://pecl.php.net/packages/big_int ) version greater than or equal to 1.0.3
  - PHP GMP extension ( http://php.net/gmp )
- - PHP BCMath extension ( http://php.net/manual/en/ref.bc.php ) for both PHP4 and PHP5
- </description>
- <maintainers>
-  <maintainer>
-   <user>valyala</user>
-   <name>Alexander Valyalkin</name>
-   <email>valyala@gmail.com</email>
-   <role>lead</role>
-  </maintainer>
-  </maintainers>
- <release>
-  <version>1.2.0b</version>
-  <date>2006-02-26</date>
-  <license>PHP</license>
-  <state>beta</state>
-  <notes>* added toPEMString() function in Crypt_RSA_KeyPair class. It allows to store keypair in .pem file as RSA private key
-* added isEqual() function in Crypt_RSA_KeyPair class. It returns true if two keypairs are equal
-* added mod() and isPrime() functions to math wrappers interface
-* fixed bug in getPrime() function of GMP and BCMath math wrappers, which hangs up key generating process
-* added optional $random_generator parameter to Crypt_RSA_KeyPair constructor and factory() method
-* added benchmark in tests/bench.php, which clearly shows performance of different math wrappers (GMP, BigInt, BCMath). In short: GMP is 5 times faster than BigInt, BCMath is 50 times slower than BigInt.
-  </notes>
-  <deps>
-   <dep type="ext" rel="has" optional="yes">bcmath</dep>
-   <dep type="ext" rel="has" optional="yes">gmp</dep>
-   <dep type="pkg" rel="ge" version="1.0.3" optional="yes">big_int</dep>
-  </deps>
-  <provides type="class" name="Crypt_RSA" />
-  <provides type="function" name="Crypt_RSA::factory" />
-  <provides type="function" name="Crypt_RSA::setParams" />
-  <provides type="function" name="Crypt_RSA::encrypt" />
-  <provides type="function" name="Crypt_RSA::encryptBinary" />
-  <provides type="function" name="Crypt_RSA::decrypt" />
-  <provides type="function" name="Crypt_RSA::decryptBinary" />
-  <provides type="function" name="Crypt_RSA::createSign" />
-  <provides type="function" name="Crypt_RSA::validateSign" />
-  <provides type="function" name="Crypt_RSA::isError" />
-  <provides type="function" name="Crypt_RSA::getErrorList" />
-  <provides type="function" name="Crypt_RSA::getLastError" />
-  <provides type="function" name="Crypt_RSA::pushError" />
-  <provides type="function" name="Crypt_RSA::getErrorHandler" />
-  <provides type="function" name="Crypt_RSA::setErrorHandler" />
-  <provides type="class" name="Crypt_RSA_Key" />
-  <provides type="function" name="Crypt_RSA_Key::factory" />
-  <provides type="function" name="Crypt_RSA_Key::getKeyLength" />
-  <provides type="function" name="Crypt_RSA_Key::getModulus" />
-  <provides type="function" name="Crypt_RSA_Key::getExponent" />
-  <provides type="function" name="Crypt_RSA_Key::getKeyType" />
-  <provides type="function" name="Crypt_RSA_Key::toString" />
-  <provides type="function" name="Crypt_RSA_Key::fromString" />
-  <provides type="function" name="Crypt_RSA_Key::isValid" />
-  <provides type="function" name="Crypt_RSA_Key::isError" />
-  <provides type="function" name="Crypt_RSA_Key::getErrorList" />
-  <provides type="function" name="Crypt_RSA_Key::getLastError" />
-  <provides type="function" name="Crypt_RSA_Key::pushError" />
-  <provides type="function" name="Crypt_RSA_Key::getErrorHandler" />
-  <provides type="function" name="Crypt_RSA_Key::setErrorHandler" />
-  <provides type="class" name="Crypt_RSA_KeyPair" />
-  <provides type="function" name="Crypt_RSA_KeyPair::factory" />
-  <provides type="function" name="Crypt_RSA_KeyPair::generate" />
-  <provides type="function" name="Crypt_RSA_KeyPair::getPublicKey" />
-  <provides type="function" name="Crypt_RSA_KeyPair::getPrivateKey" />
-  <provides type="function" name="Crypt_RSA_KeyPair::setRandomGenerator" />
-  <provides type="function" name="Crypt_RSA_KeyPair::getKeyLength" />
-  <provides type="function" name="Crypt_RSA_KeyPair::fromPEMString" />
-  <provides type="function" name="Crypt_RSA_KeyPair::toPEMString" />
-  <provides type="function" name="Crypt_RSA_KeyPair::isEqual" />
-  <provides type="function" name="Crypt_RSA_KeyPair::isError" />
-  <provides type="function" name="Crypt_RSA_KeyPair::getErrorList" />
-  <provides type="function" name="Crypt_RSA_KeyPair::getLastError" />
-  <provides type="function" name="Crypt_RSA_KeyPair::pushError" />
-  <provides type="function" name="Crypt_RSA_KeyPair::getErrorHandler" />
-  <provides type="function" name="Crypt_RSA_KeyPair::setErrorHandler" />
-  <provides type="class" name="Crypt_RSA_ErrorHandler" />
-  <provides type="function" name="Crypt_RSA_ErrorHandler::isError" />
-  <provides type="function" name="Crypt_RSA_ErrorHandler::getErrorList" />
-  <provides type="function" name="Crypt_RSA_ErrorHandler::getLastError" />
-  <provides type="function" name="Crypt_RSA_ErrorHandler::pushError" />
-  <provides type="function" name="Crypt_RSA_ErrorHandler::getErrorHandler" />
-  <provides type="function" name="Crypt_RSA_ErrorHandler::setErrorHandler" />
-  <provides type="class" name="Crypt_RSA_MathLoader" />
-  <provides type="function" name="Crypt_RSA_MathLoader::loadWrapper" />
-  <provides type="class" name="Crypt_RSA_Math_BigInt" />
-  <provides type="function" name="Crypt_RSA_Math_BigInt::bin2int" />
-  <provides type="function" name="Crypt_RSA_Math_BigInt::int2bin" />
-  <provides type="function" name="Crypt_RSA_Math_BigInt::powmod" />
-  <provides type="function" name="Crypt_RSA_Math_BigInt::mul" />
-  <provides type="function" name="Crypt_RSA_Math_BigInt::mod" />
-  <provides type="function" name="Crypt_RSA_Math_BigInt::cmpAbs" />
-  <provides type="function" name="Crypt_RSA_Math_BigInt::isPrime" />
-  <provides type="function" name="Crypt_RSA_Math_BigInt::getPrime" />
-  <provides type="function" name="Crypt_RSA_Math_BigInt::dec" />
-  <provides type="function" name="Crypt_RSA_Math_BigInt::isOne" />
-  <provides type="function" name="Crypt_RSA_Math_BigInt::GCD" />
-  <provides type="function" name="Crypt_RSA_Math_BigInt::invmod" />
-  <provides type="function" name="Crypt_RSA_Math_BigInt::bitLen" />
-  <provides type="function" name="Crypt_RSA_Math_BigInt::bitOr" />
-  <provides type="function" name="Crypt_RSA_Math_BigInt::subint" />
-  <provides type="function" name="Crypt_RSA_Math_BigInt::getWrapperName" />
-  <provides type="class" name="Crypt_RSA_Math_BCMath" />
-  <provides type="function" name="Crypt_RSA_Math_BCMath::bin2int" />
-  <provides type="function" name="Crypt_RSA_Math_BCMath::int2bin" />
-  <provides type="function" name="Crypt_RSA_Math_BCMath::powmod" />
-  <provides type="function" name="Crypt_RSA_Math_BCMath::mul" />
-  <provides type="function" name="Crypt_RSA_Math_BCMath::mod" />
-  <provides type="function" name="Crypt_RSA_Math_BCMath::cmpAbs" />
-  <provides type="function" name="Crypt_RSA_Math_BCMath::isPrime" />
-  <provides type="function" name="Crypt_RSA_Math_BCMath::getPrime" />
-  <provides type="function" name="Crypt_RSA_Math_BCMath::dec" />
-  <provides type="function" name="Crypt_RSA_Math_BCMath::isOne" />
-  <provides type="function" name="Crypt_RSA_Math_BCMath::GCD" />
-  <provides type="function" name="Crypt_RSA_Math_BCMath::invmod" />
-  <provides type="function" name="Crypt_RSA_Math_BCMath::bitLen" />
-  <provides type="function" name="Crypt_RSA_Math_BCMath::bitOr" />
-  <provides type="function" name="Crypt_RSA_Math_BCMath::subint" />
-  <provides type="function" name="Crypt_RSA_Math_BCMath::getWrapperName" />
-  <provides type="class" name="Crypt_RSA_Math_GMP" />
-  <provides type="function" name="Crypt_RSA_Math_GMP::bin2int" />
-  <provides type="function" name="Crypt_RSA_Math_GMP::int2bin" />
-  <provides type="function" name="Crypt_RSA_Math_GMP::powmod" />
-  <provides type="function" name="Crypt_RSA_Math_GMP::mul" />
-  <provides type="function" name="Crypt_RSA_Math_GMP::mod" />
-  <provides type="function" name="Crypt_RSA_Math_GMP::cmpAbs" />
-  <provides type="function" name="Crypt_RSA_Math_GMP::isPrime" />
-  <provides type="function" name="Crypt_RSA_Math_GMP::getPrime" />
-  <provides type="function" name="Crypt_RSA_Math_GMP::dec" />
-  <provides type="function" name="Crypt_RSA_Math_GMP::isOne" />
-  <provides type="function" name="Crypt_RSA_Math_GMP::GCD" />
-  <provides type="function" name="Crypt_RSA_Math_GMP::invmod" />
-  <provides type="function" name="Crypt_RSA_Math_GMP::bitLen" />
-  <provides type="function" name="Crypt_RSA_Math_GMP::bitOr" />
-  <provides type="function" name="Crypt_RSA_Math_GMP::subint" />
-  <provides type="function" name="Crypt_RSA_Math_GMP::getWrapperName" />
-  <filelist>
-   <file role="php" baseinstalldir="Crypt" md5sum="6a9c4ac22b2bc7dfb8272a9f675e1c4a" name="RSA.php"/>
-   <file role="php" baseinstalldir="Crypt" md5sum="f1ac2bf277a5de66735e06e164940073" name="RSA/ErrorHandler.php"/>
-   <file role="php" baseinstalldir="Crypt" md5sum="5a0d2996e49700fa88236a73a79bd2c0" name="RSA/Key.php"/>
-   <file role="php" baseinstalldir="Crypt" md5sum="047a4cd0081b0dc67ede1c03261f0c54" name="RSA/KeyPair.php"/>
-   <file role="php" baseinstalldir="Crypt" md5sum="4b9e9f3c34bcaeec0c322b099b726b02" name="RSA/MathLoader.php"/>
-   <file role="php" baseinstalldir="Crypt" md5sum="78eb088a0e4424c2aa2829ebe4ede5c0" name="RSA/Math/BCMath.php"/>
-   <file role="php" baseinstalldir="Crypt" md5sum="0e998825b30b34878c4ca87423ee4e87" name="RSA/Math/BigInt.php"/>
-   <file role="php" baseinstalldir="Crypt" md5sum="7ab0d5da8962f3bf4cc471f2d9879111" name="RSA/Math/GMP.php"/>
-   <file role="doc" baseinstalldir="Crypt" md5sum="8e699cdffe3e4e3d1341e2f1dc81d29d" name="CREDITS"/>
-   <file role="doc" baseinstalldir="Crypt" md5sum="f4c7bb36cd36382f0cf5fd4594f73fee" name="LICENSE"/>
-   <file role="doc" baseinstalldir="Crypt" md5sum="ca9d024c219dba927b4aee2dc1fb5737" name="docs/Crypt_RSA.txt"/>
-   <file role="doc" baseinstalldir="Crypt" md5sum="b93c59f9eb0f92a4c7ff235423f299d8" name="docs/math_wrappers.txt"/>
-   <file role="doc" baseinstalldir="Crypt" md5sum="73f96fcd914179a3500c71d96d77489a" name="examples/web_interface.php"/>
-   <file role="test" baseinstalldir="Crypt" md5sum="269bb4ce3ddc98efa5cc02c5fa36d71d" name="tests/bench.php"/>
-   <file role="test" baseinstalldir="Crypt" md5sum="ced4107d21a124ccfdc20f49e91e5c39" name="tests/test1.php"/>
-   <file role="test" baseinstalldir="Crypt" md5sum="4e5cea66200222ba82d7869cf4356caa" name="tests/test2.php"/>
-  </filelist>
- </release>
+ - PHP BCMath extension ( http://php.net/manual/en/ref.bc.php ) for both PHP4 and PHP5</description>
+ <lead>
+  <name>Alexander Valyalkin</name>
+  <user>valyala</user>
+  <email>valyala@gmail.com</email>
+  <active>yes</active>
+ </lead>
+ <date>2009-01-05</date>
+ <time>19:09:01</time>
+ <version>
+  <release>1.2.1</release>
+  <api>1.2.0b</api>
+ </version>
+ <stability>
+  <release>beta</release>
+  <api>stable</api>
+ </stability>
+ <license uri="http://www.php.net/license">PHP</license>
+ <notes>PHPCS
+Bug #7252 - undefined variable $in
+Bug #7254 - E_STRICT / only return variables by reference
+Bug #7253 - docblock corrections</notes>
+ <contents>
+  <dir baseinstalldir="Crypt" name="/">
+   <file baseinstalldir="Crypt" md5sum="ca9d024c219dba927b4aee2dc1fb5737" name="docs/Crypt_RSA.txt" role="doc" />
+   <file baseinstalldir="Crypt" md5sum="b93c59f9eb0f92a4c7ff235423f299d8" name="docs/math_wrappers.txt" role="doc" />
+   <file baseinstalldir="Crypt" md5sum="73f96fcd914179a3500c71d96d77489a" name="examples/web_interface.php" role="doc" />
+   <file baseinstalldir="Crypt" md5sum="434f92f9035e99e7ece971f68616d8b1" name="RSA/ErrorHandler.php" role="php" />
+   <file baseinstalldir="Crypt" md5sum="ac760134b1a8129680453917de5003d2" name="RSA/Key.php" role="php" />
+   <file baseinstalldir="Crypt" md5sum="54ec864a8e341d0b6ec420499333a7f8" name="RSA/KeyPair.php" role="php" />
+   <file baseinstalldir="Crypt" md5sum="0203b8e899366004efe6fe390a2688b8" name="RSA/MathLoader.php" role="php" />
+   <file baseinstalldir="Crypt" md5sum="78eb088a0e4424c2aa2829ebe4ede5c0" name="RSA/Math/BCMath.php" role="php" />
+   <file baseinstalldir="Crypt" md5sum="0e998825b30b34878c4ca87423ee4e87" name="RSA/Math/BigInt.php" role="php" />
+   <file baseinstalldir="Crypt" md5sum="7ab0d5da8962f3bf4cc471f2d9879111" name="RSA/Math/GMP.php" role="php" />
+   <file baseinstalldir="Crypt" md5sum="269bb4ce3ddc98efa5cc02c5fa36d71d" name="tests/bench.php" role="test" />
+   <file baseinstalldir="Crypt" md5sum="ced4107d21a124ccfdc20f49e91e5c39" name="tests/test1.php" role="test" />
+   <file baseinstalldir="Crypt" md5sum="4e5cea66200222ba82d7869cf4356caa" name="tests/test2.php" role="test" />
+   <file baseinstalldir="Crypt" md5sum="8e699cdffe3e4e3d1341e2f1dc81d29d" name="CREDITS" role="doc" />
+   <file baseinstalldir="Crypt" md5sum="f4c7bb36cd36382f0cf5fd4594f73fee" name="LICENSE" role="doc" />
+   <file baseinstalldir="Crypt" md5sum="6a9c4ac22b2bc7dfb8272a9f675e1c4a" name="RSA.php" role="php" />
+  </dir>
+ </contents>
+ <dependencies>
+  <required>
+   <php>
+    <min>4.0.0</min>
+   </php>
+   <pearinstaller>
+    <min>1.4.0b1</min>
+   </pearinstaller>
+  </required>
+  <optional>
+   <package>
+    <name>big_int</name>
+    <channel>pear.php.net</channel>
+    <min>1.0.3</min>
+   </package>
+   <extension>
+    <name>bcmath</name>
+   </extension>
+   <extension>
+    <name>gmp</name>
+   </extension>
+  </optional>
+ </dependencies>
+ <phprelease />
+ <changelog>
+  <release>
+   <version>
+    <release>1.2.1</release>
+    <api>1.2.0b</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>stable</api>
+   </stability>
+   <date>2009-01-05</date>
+   <license uri="http://www.php.net/license">PHP</license>
+   <notes>PHPCS
+Bug #7252 - undefined variable $in
+Bug #7254 - E_STRICT / only return variables by reference
+Bug #7253 - docblock corrections</notes>
+  </release>
+ </changelog>
 </package>
