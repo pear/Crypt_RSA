@@ -36,13 +36,13 @@ require_once 'Crypt/RSA/ErrorHandler.php';
  *
  * Example usage:
  *    // load BigInt wrapper
- *    $big_int_wrapper = &Crypt_RSA_MathLoader::loadWrapper('BigInt');
+ *    $big_int_wrapper = Crypt_RSA_MathLoader::loadWrapper('BigInt');
  * 
  *    // load BCMath wrapper
- *    $bcmath_wrapper = &Crypt_RSA_MathLoader::loadWrapper('BCMath');
+ *    $bcmath_wrapper = Crypt_RSA_MathLoader::loadWrapper('BCMath');
  * 
  *    // load the most suitable wrapper
- *    $bcmath_wrapper = &Crypt_RSA_MathLoader::loadWrapper();
+ *    $bcmath_wrapper = Crypt_RSA_MathLoader::loadWrapper();
  * 
  * @category   Encryption
  * @package    Crypt_RSA
@@ -74,7 +74,7 @@ class Crypt_RSA_MathLoader
      *
      * @access public
      */
-    function &loadWrapper($wrapper_name = 'default')
+    function loadWrapper($wrapper_name = 'default')
     {
         static $math_objects = array();
         // ordered by performance. GMP is the fastest math library, BCMath - the slowest.
@@ -88,17 +88,17 @@ class Crypt_RSA_MathLoader
             return $math_objects[$wrapper_name];
         }
 
-        $err_handler = &new Crypt_RSA_ErrorHandler;
+        $err_handler = new Crypt_RSA_ErrorHandler();
 
         if ($wrapper_name === 'default') {
             // try to load the most suitable wrapper
             $n = sizeof($math_wrappers);
             for ($i = 0; $i < $n; $i++) {
-                $obj = &Crypt_RSA_MathLoader::loadWrapper($math_wrappers[$i]);
+                $obj = Crypt_RSA_MathLoader::loadWrapper($math_wrappers[$i]);
                 if (!$err_handler->isError($obj)) {
                     // wrapper for $math_wrappers[$i] successfully loaded
                     // register it as default wrapper and return reference to it
-                    return $math_objects['default'] = &$obj;
+                    return $math_objects['default'] = $obj;
                 }
             }
             // can't load any wrapper
@@ -120,13 +120,13 @@ class Crypt_RSA_MathLoader
         }
 
         // create and return wrapper object on success or PEAR_Error object on error
-        $obj = &new $class_name;
+        $obj = new $class_name;
         if ($obj->errstr) {
             // cannot load required extension for math wrapper
             $err_handler->pushError($obj->errstr, CRYPT_RSA_ERROR_NO_EXT);
             return $err_handler->getLastError();
         }
-        return $math_objects[$wrapper_name] = &$obj;
+        return $math_objects[$wrapper_name] = $obj;
     }
 }
 
