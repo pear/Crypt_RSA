@@ -690,6 +690,7 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
      *
      * @return Crypt_RSA_KeyPair object on success, PEAR_Error object on error
      * @access public
+     * @static
      */
     function &fromPEMString($str, $wrapper_name = 'default', $error_handler = '')
     {

@@ -200,9 +200,9 @@ class Crypt_RSA_Key extends Crypt_RSA_ErrorHandler
      * @return object   new Crypt_RSA_Key object on success or PEAR_Error object on failure
      * @access public
      */
-    function &factory($modulus, $exp, $key_type, $wrapper_name = 'default', $error_handler = '')
+    function factory($modulus, $exp, $key_type, $wrapper_name = 'default', $error_handler = '')
     {
-        $obj = &new Crypt_RSA_Key($modulus, $exp, $key_type, $wrapper_name, $error_handler);
+        $obj = new Crypt_RSA_Key($modulus, $exp, $key_type, $wrapper_name, $error_handler);
         if ($obj->isError()) {
             // error during creating a new object. Retrurn PEAR_Error object
             return $obj->getLastError();
@@ -284,15 +284,17 @@ class Crypt_RSA_Key extends Crypt_RSA_ErrorHandler
      * This function can be called statically:
      *     $key = Crypt_RSA_Key::fromString($key_in_string, 'BigInt');
      *
-     * @param $key_str       RSA key, serialized into string
-     * @param $wrapper_name  optional math wrapper name
+     * @param string $key_str      RSA key, serialized into string
+     * @param string $wrapper_name optional math wrapper name
+     *
      * @return object        key as Crypt_RSA_Key object
      * @access public
+     * @static
      */
-    function &fromString($key_str, $wrapper_name = 'default')
+    function fromString($key_str, $wrapper_name = 'default')
     {
         list($modulus, $exponent, $key_type) = unserialize(base64_decode($key_str));
-        $obj = &new Crypt_RSA_Key($modulus, $exponent, $key_type, $wrapper_name);
+        $obj = new Crypt_RSA_Key($modulus, $exponent, $key_type, $wrapper_name);
         return $obj;
     }
 
