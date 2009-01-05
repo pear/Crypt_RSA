@@ -13,13 +13,13 @@
  * the PHP License and are unable to obtain it through the web, please
  * send a note to license@php.net so we can mail you a copy immediately.
  *
- * @category   Encryption
- * @package    Crypt_RSA
- * @author     Alexander Valyalkin <valyala@gmail.com>
- * @copyright  2005, 2006 Alexander Valyalkin
- * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    1.2.0b
- * @link       http://pear.php.net/package/Crypt_RSA
+ * @category  Encryption
+ * @package   Crypt_RSA
+ * @author    Alexander Valyalkin <valyala@gmail.com>
+ * @copyright 2005 Alexander Valyalkin
+ * @license   http://www.php.net/license/3_0.txt  PHP License 3.0
+ * @version   CVS: $Id$
+ * @link      http://pear.php.net/package/Crypt_RSA
  */
 
 /**
@@ -121,14 +121,14 @@ require_once 'Crypt/RSA/Key.php';
  *        echo "keypair1 != keypair2\n";
  *    }
  *
- * @category   Encryption
- * @package    Crypt_RSA
- * @author     Alexander Valyalkin <valyala@gmail.com>
- * @copyright  2005, 2006 Alexander Valyalkin
- * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @link       http://pear.php.net/package/Crypt_RSA
- * @version    @package_version@
- * @access     public
+ * @category  Encryption
+ * @package   Crypt_RSA
+ * @author    Alexander Valyalkin <valyala@gmail.com>
+ * @copyright 2005 Alexander Valyalkin
+ * @license   http://www.php.net/license/3_0.txt  PHP License 3.0
+ * @version   Release: @package_version@
+ * @link      http://pear.php.net/package/Crypt_RSA
+ * @access    public
  */
 class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
 {
@@ -187,7 +187,8 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
      * @return array  Array of keypair attributes names
      * @access private
      */
-    function _get_attr_names() {
+    function _get_attr_names() 
+    {
         return array('version', 'n', 'e', 'd', 'p', 'q', 'dmp1', 'dmq1', 'iqmp');
     }
 
@@ -195,9 +196,9 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
      * Parses ASN.1 string [$str] starting form position [$pos].
      * Returns tag and string value of parsed object.
      *
-     * @param string $str
-     * @param int $pos
-     * @param Crypt_RSA_ErrorHandler $err_handler
+     * @param string                 $str
+     * @param int                    &$pos
+     * @param Crypt_RSA_ErrorHandler &$err_handler
      *
      * @return mixed    Array('tag' => ..., 'str' => ...) on success, false on error
      * @access private
@@ -254,9 +255,9 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
      * Returns string representation of number, which can be passed
      * in bin2int() function of math wrapper.
      *
-     * @param string $str
-     * @param int $pos
-     * @param object Crypt_RSA_ErrorHandler $err_handler
+     * @param string                 $str
+     * @param int                    &$pos
+     * @param Crypt_RSA_ErrorHandler &$err_handler
      *
      * @return mixed   string representation of parsed number on success, false on error
      * @access private
@@ -280,10 +281,10 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
     /**
      * Constructs ASN.1 string from tag $tag and object $str
      *
-     * @param string $str ASN.1 object string
-     * @param int $tag ASN.1 tag value
-     * @param bool $is_constructed
-     * @param bool $is_private
+     * @param string $str            ASN.1 object string
+     * @param int    $tag            ASN.1 tag value
+     * @param bool   $is_constructed 
+     * @param bool   $is_private 
      *
      * @return ASN.1-encoded string
      * @access private
@@ -295,9 +296,8 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
         // encode ASN.1 tag value
         $tag_ext = ($is_constructed ? 0x20 : 0) | ($is_private ? 0xc0 : 0);
         if ($tag < 0x1f) {
-            $out .= chr($tag | $tag_ext) ;
-        }
-        else {
+            $out .= chr($tag | $tag_ext);
+        } else {
             $out .= chr($tag_ext | 0x1f);
             $tmp = chr($tag & 0x7f);
             $tag >>= 7;
@@ -312,8 +312,7 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
         $len = strlen($str);
         if ($len < 0x7f) {
             $out .= chr($len);
-        }
-        else {
+        } else {
             $tmp = '';
             $n = 0;
             while ($len) {
@@ -345,13 +344,14 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
     /**
      * Crypt_RSA_KeyPair constructor.
      *
-     * @param int $key_len bit length of key pair, which will be generated in constructor
-     * @param string $wrapper_name
-     *        Name of math wrapper, which will be used to
+     * Wrapper: name of math wrapper, which will be used to
      *        perform different operations with big integers.
      *        See contents of Crypt/RSA/Math folder for examples of wrappers.
      *        Read docs/Crypt_RSA/docs/math_wrappers.txt for details.
-     * @param string $error_handler   name of error handler function
+     *
+     * @param int      $key_len          bit length of key pair, which will be generated in constructor
+     * @param string   $wrapper_name     wrapper name
+     * @param string   $error_handler    name of error handler function
      * @param callback $random_generator function which will be used as random generator
      *
      * @access public
@@ -459,8 +459,7 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
             $this->_private_key = $private_key;
             $this->_key_len = $public_key->getKeyLength();
             $this->_attrs = $rsa_attrs;
-        }
-        else {
+        } else {
             // generate key pair
             if (!$this->generate($key_len)) {
                 // error during generating key pair
@@ -472,13 +471,14 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
     /**
      * Crypt_RSA_KeyPair factory.
      *
-     * @param int $key_len bit length of key pair, which will be generated in constructor
-     * @param string $wrapper_name
-     *        Name of math wrapper, which will be used to
+     * Wrapper - Name of math wrapper, which will be used to
      *        perform different operations with big integers.
      *        See contents of Crypt/RSA/Math folder for examples of wrappers.
      *        Read docs/Crypt_RSA/docs/math_wrappers.txt for details.
-     * @param string $error_handler   name of error handler function
+     *
+     * @param int      $key_len          bit length of key pair, which will be generated in constructor
+     * @param string   $wrapper_name     wrapper name
+     * @param string   $error_handler    name of error handler function
      * @param callback $random_generator function which will be used as random generator
      *
      * @return object   new Crypt_RSA_KeyPair object on success or PEAR_Error object on failure
@@ -488,7 +488,7 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
     {
         $obj = &new Crypt_RSA_KeyPair($key_len, $wrapper_name, $error_handler, $random_generator);
         if ($obj->isError()) {
-            // error during creating a new object. Retrurn PEAR_Error object
+            // error during creating a new object. Return PEAR_Error object
             return $obj->getLastError();
         }
         // object created successfully. Return it
@@ -499,7 +499,8 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
      * Generates new Crypt_RSA key pair with length $key_len.
      * If $key_len is missed, use an old key length from $this->_key_len
      *
-     * @param int $key_len  bit length of key pair, which will be generated
+     * @param int $key_len bit length of key pair, which will be generated
+     *
      * @return bool         true on success or false on error
      * @access public
      */
@@ -637,7 +638,8 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
      * Random generator function must return integer with at least 8 lower
      * significant bits, which will be used as random values.
      *
-     * @param string $random_generator  name of random generator function
+     * @param string $random_generator name of random generator function
+     *
      * @return bool                     true on success or false on error
      * @access public
      */
@@ -652,8 +654,7 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
                 return false;
             }
             $this->_random_generator = $random_generator;
-        }
-        else {
+        } else {
             // set default random generator
             $this->_random_generator = is_null($default_random_generator) ?
                 ($default_random_generator = create_function('', '$a=explode(" ",microtime());return(int)($a[0]*1000000);')) :
@@ -680,13 +681,14 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
      * MCsCAQACBHtvbSECAwEAAQIEeYrk3QIDAOF3AgMAjCcCAmdnAgJMawIDALEk
      * -----END RSA PRIVATE KEY-----
      *
-     * @param string $str PEM-encoded string
-     * @param string $wrapper_name
-     *        Name of math wrapper, which will be used to
-     *        perform different operations with big integers.
-     *        See contents of Crypt/RSA/Math folder for examples of wrappers.
-     *        Read docs/Crypt_RSA/docs/math_wrappers.txt for details.
-     * @param string $error_handler   name of error handler function
+     * Wrapper: Name of math wrapper, which will be used to
+     * perform different operations with big integers.
+     * See contents of Crypt/RSA/Math folder for examples of wrappers.
+     * Read docs/Crypt_RSA/docs/math_wrappers.txt for details.
+     *
+     * @param string $str           PEM-encoded string
+     * @param string $wrapper_name  Wrapper name
+     * @param string $error_handler name of error handler function
      *
      * @return Crypt_RSA_KeyPair object on success, PEAR_Error object on error
      * @access public
@@ -782,7 +784,7 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
     /**
      * Compares keypairs in Crypt_RSA_KeyPair objects $this and $key_pair
      *
-     * @param Crypt_RSA_KeyPair object $key_pair  keypair to compare
+     * @param Crypt_RSA_KeyPair $key_pair  keypair to compare
      *
      * @return bool  true, if keypair stored in $this equal to keypair stored in $key_pair
      * @access public

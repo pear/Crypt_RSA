@@ -13,13 +13,13 @@
  * the PHP License and are unable to obtain it through the web, please
  * send a note to license@php.net so we can mail you a copy immediately.
  *
- * @category   Encryption
- * @package    Crypt_RSA
- * @author     Alexander Valyalkin <valyala@gmail.com>
- * @copyright  2005, 2006 Alexander Valyalkin
- * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    1.2.0b
- * @link       http://pear.php.net/package/Crypt_RSA
+ * @category  Encryption
+ * @package   Crypt_RSA
+ * @author    Alexander Valyalkin <valyala@gmail.com>
+ * @copyright 2005 Alexander Valyalkin
+ * @license   http://www.php.net/license/3_0.txt  PHP License 3.0
+ * @version   CVS: $Id$
+ * @link      http://pear.php.net/package/Crypt_RSA
  */
 
 /**
@@ -83,14 +83,14 @@ require_once 'Crypt/RSA/MathLoader.php';
  *        echo "error: ", $rsa_obj->getMessage(), "\n";
  *    }
  *
- * @category   Encryption
- * @package    Crypt_RSA
- * @author     Alexander Valyalkin <valyala@gmail.com>
- * @copyright  2005, 2006 Alexander Valyalkin
- * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @link       http://pear.php.net/package/Crypt_RSA
- * @version    @package_version@
- * @access     public
+ * @category  Encryption
+ * @package   Crypt_RSA
+ * @author    Alexander Valyalkin <valyala@gmail.com>
+ * @copyright 2005 Alexander Valyalkin
+ * @license   http://www.php.net/license/3_0.txt  PHP License 3.0
+ * @version   Release: @package_version@
+ * @link      http://pear.php.net/package/Crypt_RSA
+ * @access    public
  */
 class Crypt_RSA_Key extends Crypt_RSA_ErrorHandler
 {
@@ -138,15 +138,16 @@ class Crypt_RSA_Key extends Crypt_RSA_ErrorHandler
     /**
      * Crypt_RSA_Key constructor.
      *
-     * @param string $modulus   key modulus
-     * @param string $exp       key exponent
-     * @param string $key_type  type of the key (public or private)
-     * @param string $wrapper_name
-     *        Name of math wrapper, which will be used to
+     * You should pass in the name of math wrapper, which will be used to
      *        perform different operations with big integers.
      *        See contents of Crypt/RSA/Math folder for examples of wrappers.
      *        Read docs/Crypt_RSA/docs/math_wrappers.txt for details.
-     * @param string $error_handler   name of error handler function
+     *
+     * @param string $modulus       key modulus
+     * @param string $exp           key exponent
+     * @param string $key_type      type of the key (public or private)
+     * @param string $wrapper_name  wrapper to use
+     * @param string $error_handler name of error handler function
      *
      * @access public
      */
@@ -187,15 +188,11 @@ class Crypt_RSA_Key extends Crypt_RSA_ErrorHandler
     /**
      * Crypt_RSA_Key factory.
      *
-     * @param string $modulus   key modulus
-     * @param string $exp       key exponent
-     * @param string $key_type  type of the key (public or private)
-     * @param string $wrapper_name
-     *        Name of math wrapper, which will be used to
-     *        perform different operations with big integers.
-     *        See contents of Crypt/RSA/Math folder for examples of wrappers.
-     *        Read docs/Crypt_RSA/docs/math_wrappers.txt for details.
-     * @param string $error_handler   name of error handler function
+     * @param string $modulus       key modulus
+     * @param string $exp           key exponent
+     * @param string $key_type      type of the key (public or private)
+     * @param string $wrapper_name  wrapper to use
+     * @param string $error_handler name of error handler function
      *
      * @return object   new Crypt_RSA_Key object on success or PEAR_Error object on failure
      * @access public
@@ -266,11 +263,9 @@ class Crypt_RSA_Key extends Crypt_RSA_ErrorHandler
     function toString()
     {
         return base64_encode(
-            serialize(array(
-                $this->_modulus,
-                $this->_exp,
-                $this->_key_type,
-            ))
+            serialize(
+                array($this->_modulus, $this->_exp, $this->_key_type)
+            )
         );
     }
 
@@ -305,7 +300,8 @@ class Crypt_RSA_Key extends Crypt_RSA_ErrorHandler
      *
      * Returns true, if $key is valid Crypt_RSA key, else returns false
      *
-     * @param object $key  Crypt_RSA_Key object for validating
+     * @param object $key Crypt_RSA_Key object for validating
+     *
      * @return bool        true if $key is valid, else false
      * @access public
      */

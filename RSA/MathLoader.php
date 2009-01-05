@@ -13,13 +13,13 @@
  * the PHP License and are unable to obtain it through the web, please
  * send a note to license@php.net so we can mail you a copy immediately.
  *
- * @category   Encryption
- * @package    Crypt_RSA
- * @author     Alexander Valyalkin <valyala@gmail.com>
- * @copyright  2005, 2006 Alexander Valyalkin
- * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    1.2.0b
- * @link       http://pear.php.net/package/Crypt_RSA
+ * @category  Encryption
+ * @package   Crypt_RSA
+ * @author    Alexander Valyalkin <valyala@gmail.com>
+ * @copyright Alexander Valyalkin 2005
+ * @license   http://www.php.net/license/3_0.txt  PHP License 3.0
+ * @version   CVS: $Id$
+ * @link      http://pear.php.net/package/Crypt_RSA
  */
 
 /**
@@ -44,14 +44,14 @@ require_once 'Crypt/RSA/ErrorHandler.php';
  *    // load the most suitable wrapper
  *    $bcmath_wrapper = Crypt_RSA_MathLoader::loadWrapper();
  * 
- * @category   Encryption
- * @package    Crypt_RSA
- * @author     Alexander Valyalkin <valyala@gmail.com>
- * @copyright  2005, 2006 Alexander Valyalkin
- * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @link       http://pear.php.net/package/Crypt_RSA
- * @version    @package_version@
- * @access     public
+ * @category  Encryption
+ * @package   Crypt_RSA
+ * @author    Alexander Valyalkin <valyala@gmail.com>
+ * @copyright Alexander Valyalkin 2005
+ * @license   http://www.php.net/license/3_0.txt  PHP License 3.0
+ * @version   Release: @package_version@
+ * @link      http://pear.php.net/package/Crypt_RSA
+ * @access    public
  */
 class Crypt_RSA_MathLoader
 {
@@ -67,7 +67,8 @@ class Crypt_RSA_MathLoader
      *    // load BCMath wrapper
      *    $bcmath_wrapper = &Crypt_RSA_MathLoader::loadWrapper('BCMath');
      *
-     * @param string  $wrapper_name
+     * @param string $wrapper_name Name of wrapper
+     *
      * @return object
      *         Reference to object of wrapper with name $wrapper_name on success
      *         or PEAR_Error object on error
@@ -113,7 +114,8 @@ class Crypt_RSA_MathLoader
             $err_handler->pushError("can't find file [{$class_filename}] for RSA math wrapper [{$wrapper_name}]", CRYPT_RSA_ERROR_NO_FILE);
             return $err_handler->getLastError();
         }
-        require_once($class_filename);
+
+        include_once $class_filename;
         if (!class_exists($class_name)) {
             $err_handler->pushError("can't find class [{$class_name}] in file [{$class_filename}]", CRYPT_RSA_ERROR_NO_CLASS);
             return $err_handler->getLastError();

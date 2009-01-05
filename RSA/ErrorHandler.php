@@ -13,13 +13,13 @@
  * the PHP License and are unable to obtain it through the web, please
  * send a note to license@php.net so we can mail you a copy immediately.
  *
- * @category   Encryption
- * @package    Crypt_RSA
- * @author     Alexander Valyalkin <valyala@gmail.com>
- * @copyright  2005, 2006 Alexander Valyalkin
- * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    1.2.0b
- * @link       http://pear.php.net/package/Crypt_RSA
+ * @category  Encryption
+ * @package   Crypt_RSA
+ * @author    Alexander Valyalkin <valyala@gmail.com>
+ * @copyright 2005 Alexander Valyalkin
+ * @license   http://www.php.net/license/3_0.txt  PHP License 3.0
+ * @version   CVS: $Id$
+ * @link      http://pear.php.net/package/Crypt_RSA
  */
 
 /**
@@ -110,14 +110,14 @@ define('CRYPT_RSA_ERROR_WRONG_TAIL', 13);
  *   - setErrorHandler($new_error_handler) - sets error handler function
  *   - getErrorHandler() - returns name of error handler function
  *
- * @category   Encryption
- * @package    Crypt_RSA
- * @author     Alexander Valyalkin <valyala@gmail.com>
- * @copyright  2005 Alexander Valyalkin
- * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @link       http://pear.php.net/package/Crypt_RSA
- * @version    @package_version@
- * @access     public
+ * @category  Encryption
+ * @package   Crypt_RSA
+ * @author    Alexander Valyalkin <valyala@gmail.com>
+ * @copyright 2005 Alexander Valyalkin
+ * @license   http://www.php.net/license/3_0.txt  PHP License 3.0
+ * @version   Release: @package_version@
+ * @link      http://pear.php.net/package/Crypt_RSA
+ * @access    public
  */
 class Crypt_RSA_ErrorHandler
 {
@@ -140,7 +140,8 @@ class Crypt_RSA_ErrorHandler
     /**
      * Returns true if list of errors is not empty, else returns false
      *
-     * @param object
+     * @param mixed $err Check if the object is an error
+     *
      * @return bool    true, if list of errors is not empty or $err is PEAR_Error object, else false
      * @access public
      */
@@ -179,7 +180,8 @@ class Crypt_RSA_ErrorHandler
      * pushes error object $error to the error list
      *
      * @param string $errstr error string
-     * @param int $errno     error number
+     * @param int    $errno  error number
+     *
      * @return bool          true on success, false on error
      * @access public
      */
@@ -200,8 +202,9 @@ class Crypt_RSA_ErrorHandler
      * Function $func_name must accept one parameter - current
      * object, which triggered error.
      *
-     * @param string $func_name  name of error handler function
-     * @return bool              true on success, false on error
+     * @param string $func_name name of error handler function
+     *
+     * @return bool             true on success, false on error
      * @access public
      */
     function setErrorHandler($func_name = '')
