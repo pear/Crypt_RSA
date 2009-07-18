@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<package packagerversion="1.7.2" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
+<package packagerversion="1.8.1" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
  <name>Crypt_RSA</name>
  <channel>pear.php.net</channel>
  <summary>Provides RSA-like key generation, encryption/decryption, signing and signature checking</summary>
@@ -14,8 +14,8 @@ It uses one of the following extensions for math calculations:
   <email>valyala@gmail.com</email>
   <active>yes</active>
  </lead>
- <date>2009-01-05</date>
- <time>19:09:01</time>
+ <date>2009-07-18</date>
+ <time>18:50:40</time>
  <version>
   <release>1.2.1</release>
   <api>1.2.0b</api>
@@ -25,28 +25,30 @@ It uses one of the following extensions for math calculations:
   <api>stable</api>
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
- <notes>PHPCS
+ <notes>
+PHPCS
 Bug #7252 - undefined variable $in
 Bug #7254 - E_STRICT / only return variables by reference
-Bug #7253 - docblock corrections</notes>
+Bug #7253 - docblock corrections
+ </notes>
  <contents>
   <dir baseinstalldir="Crypt" name="/">
+   <file baseinstalldir="Crypt" md5sum="6a9c4ac22b2bc7dfb8272a9f675e1c4a" name="Crypt/RSA.php" role="php" />
+   <file baseinstalldir="Crypt" md5sum="1139b74cabdc9a98f7603b74a945fdb5" name="Crypt/RSA/ErrorHandler.php" role="php" />
+   <file baseinstalldir="Crypt" md5sum="16a6ed6d156066df89a2cc536ce18a5f" name="Crypt/RSA/Key.php" role="php" />
+   <file baseinstalldir="Crypt" md5sum="917383bf8ab58faf30eab6e370634f23" name="Crypt/RSA/KeyPair.php" role="php" />
+   <file baseinstalldir="Crypt" md5sum="ac36117c5a2698a1783762fa64c01dcd" name="Crypt/RSA/MathLoader.php" role="php" />
+   <file baseinstalldir="Crypt" md5sum="78eb088a0e4424c2aa2829ebe4ede5c0" name="Crypt/RSA/Math/BCMath.php" role="php" />
+   <file baseinstalldir="Crypt" md5sum="0e998825b30b34878c4ca87423ee4e87" name="Crypt/RSA/Math/BigInt.php" role="php" />
+   <file baseinstalldir="Crypt" md5sum="7ab0d5da8962f3bf4cc471f2d9879111" name="Crypt/RSA/Math/GMP.php" role="php" />
    <file baseinstalldir="Crypt" md5sum="ca9d024c219dba927b4aee2dc1fb5737" name="docs/Crypt_RSA.txt" role="doc" />
    <file baseinstalldir="Crypt" md5sum="b93c59f9eb0f92a4c7ff235423f299d8" name="docs/math_wrappers.txt" role="doc" />
    <file baseinstalldir="Crypt" md5sum="73f96fcd914179a3500c71d96d77489a" name="examples/web_interface.php" role="doc" />
-   <file baseinstalldir="Crypt" md5sum="434f92f9035e99e7ece971f68616d8b1" name="RSA/ErrorHandler.php" role="php" />
-   <file baseinstalldir="Crypt" md5sum="ac760134b1a8129680453917de5003d2" name="RSA/Key.php" role="php" />
-   <file baseinstalldir="Crypt" md5sum="54ec864a8e341d0b6ec420499333a7f8" name="RSA/KeyPair.php" role="php" />
-   <file baseinstalldir="Crypt" md5sum="0203b8e899366004efe6fe390a2688b8" name="RSA/MathLoader.php" role="php" />
-   <file baseinstalldir="Crypt" md5sum="78eb088a0e4424c2aa2829ebe4ede5c0" name="RSA/Math/BCMath.php" role="php" />
-   <file baseinstalldir="Crypt" md5sum="0e998825b30b34878c4ca87423ee4e87" name="RSA/Math/BigInt.php" role="php" />
-   <file baseinstalldir="Crypt" md5sum="7ab0d5da8962f3bf4cc471f2d9879111" name="RSA/Math/GMP.php" role="php" />
    <file baseinstalldir="Crypt" md5sum="269bb4ce3ddc98efa5cc02c5fa36d71d" name="tests/bench.php" role="test" />
+   <file baseinstalldir="Crypt" md5sum="2be49ad9691f11115dcef1a65537c621" name="tests/FactoryTest.php" role="test" />
    <file baseinstalldir="Crypt" md5sum="ced4107d21a124ccfdc20f49e91e5c39" name="tests/test1.php" role="test" />
-   <file baseinstalldir="Crypt" md5sum="4e5cea66200222ba82d7869cf4356caa" name="tests/test2.php" role="test" />
    <file baseinstalldir="Crypt" md5sum="8e699cdffe3e4e3d1341e2f1dc81d29d" name="CREDITS" role="doc" />
    <file baseinstalldir="Crypt" md5sum="f4c7bb36cd36382f0cf5fd4594f73fee" name="LICENSE" role="doc" />
-   <file baseinstalldir="Crypt" md5sum="6a9c4ac22b2bc7dfb8272a9f675e1c4a" name="RSA.php" role="php" />
   </dir>
  </contents>
  <dependencies>
@@ -83,12 +85,14 @@ Bug #7253 - docblock corrections</notes>
     <release>beta</release>
     <api>stable</api>
    </stability>
-   <date>2009-01-05</date>
+   <date>2009-07-18</date>
    <license uri="http://www.php.net/license">PHP</license>
-   <notes>PHPCS
+   <notes>
+PHPCS
 Bug #7252 - undefined variable $in
 Bug #7254 - E_STRICT / only return variables by reference
-Bug #7253 - docblock corrections</notes>
+Bug #7253 - docblock corrections
+   </notes>
   </release>
  </changelog>
 </package>
