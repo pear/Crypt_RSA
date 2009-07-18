@@ -62,23 +62,20 @@ class Crypt_RSA_DriverTest extends PHPUnit_Framework_TestCase {
     /**
      * @dataProvider drivers
      */
-    public function testEverything($driver) {
-        $errors = array();
-
-
-        ///////////////////////////////////////////////
-        // test all functionality of Crypt_RSA_KeyPair class
-        ///////////////////////////////////////////////
+    public function testKeyLength($driver) {
         $key_pair = new Crypt_RSA_KeyPair(128, $driver, 'check_error');
 
         $public_key = $key_pair->getPublicKey();
         $private_key = $key_pair->getPrivateKey();
         $key_length = $key_pair->getKeyLength();
 
-        if ($key_length != 128) {
-            $errors[] = "wrong result returned from Crypt_RSA_KeyPair::getKeyLength() function";
-        }
+        $this->assertSame(128, $key_length, "wrong result returned from Crypt_RSA_KeyPair::getKeyLength() function");
+    }
 
+    /**
+     * @dataProvider drivers
+     */
+    public function testPEMStringParsing($driver) {
         // check fromPEMString() and toPEMString() functions of Crypt_RSA_KeyPair class
         $str_in = "
         -----BEGIN RSA PRIVATE KEY-----
@@ -98,19 +95,63 @@ class Crypt_RSA_DriverTest extends PHPUnit_Framework_TestCase {
         $private_key = $key_pair->getPrivateKey();
         $key_length = $key_pair->getKeyLength();
 
-        if ($key_length != 512) {
-            $errors[] = "incorrect key length retrieved from PEM string";
-        }
+        $this->assertSame(512, $key_length, "incorrect key length retrieved from PEM string");
+    }
 
+    /**
+     * @dataProvider drivers
+     */
+    public function testDecryption($driver) {
+        // Setup
+        $str_in = "
+        -----BEGIN RSA PRIVATE KEY-----
+        MIIBPAIBAAJBAKSLT0KZTXYxHr6U/9GYBbnV8vxGkIleDE4aiVMRxuofOjcHDCoI
+        qsrVjgP78BrVqWMAAeQ9i0dXxz9zhy0+h7MCAwEAAQJBAI6OL1Yo0Uaj2doN5vDk
+        f5l4dfMBA7ovZAPK08zHawlsLvZTzxOQJhKquN01aIJA2wpzixcC9T2PgI6XW6jx
+        HkECIQDOEVpVZcE2tSnU3TwulVAC8V82akNAEH8ht6eqsEVWkwIhAMxqMc4Av7hs
+        ioAs1H9NvkF01xYVhyiEc4rzgVlmjp5hAiEAi53AOYnmvd1CyWFXrCwn+MZ2/xRC
+        Gj7TFBItvH0PjZcCIBi9kaGZPZsYp/qzclSmGCzb81xc5qrkvQdISZOEciaBAiEA
+        vLq0MTN4jkO2DOC4qxvKc1l4383nks1g/cljSO/y0pw=
+        -----END RSA PRIVATE KEY-----
+        ";
+
+        $key_pair = Crypt_RSA_KeyPair::fromPEMString($str_in,  $driver, 'check_error');
+
+        $public_key = $key_pair->getPublicKey();
+        $private_key = $key_pair->getPrivateKey();
+
+        //Test
         $rsa_obj = new Crypt_RSA(array(), $driver, 'check_error');
 
         $text = 'test text';
         $enc_text = $rsa_obj->encrypt($text, $public_key);
         $dec_text = $rsa_obj->decrypt($enc_text, $private_key);
 
-        if ($dec_text != $text) {
-            $errors[] = "decrypted text differs from encrypted text in Crypt_RSA_KeyPair::fromPEMString() check";
-        }
+        $this->assertSame($dec_text, $text, "decrypted text differs from encrypted text in Crypt_RSA_KeyPair::fromPEMString() check");
+
+    }
+
+    /**
+     * @dataProvider drivers
+     */
+    public function testEverything($driver) {
+        $errors = array();
+
+        // Setup
+        $str_in = "
+        -----BEGIN RSA PRIVATE KEY-----
+        MIIBPAIBAAJBAKSLT0KZTXYxHr6U/9GYBbnV8vxGkIleDE4aiVMRxuofOjcHDCoI
+        qsrVjgP78BrVqWMAAeQ9i0dXxz9zhy0+h7MCAwEAAQJBAI6OL1Yo0Uaj2doN5vDk
+        f5l4dfMBA7ovZAPK08zHawlsLvZTzxOQJhKquN01aIJA2wpzixcC9T2PgI6XW6jx
+        HkECIQDOEVpVZcE2tSnU3TwulVAC8V82akNAEH8ht6eqsEVWkwIhAMxqMc4Av7hs
+        ioAs1H9NvkF01xYVhyiEc4rzgVlmjp5hAiEAi53AOYnmvd1CyWFXrCwn+MZ2/xRC
+        Gj7TFBItvH0PjZcCIBi9kaGZPZsYp/qzclSmGCzb81xc5qrkvQdISZOEciaBAiEA
+        vLq0MTN4jkO2DOC4qxvKc1l4383nks1g/cljSO/y0pw=
+        -----END RSA PRIVATE KEY-----
+        ";
+
+        $key_pair = Crypt_RSA_KeyPair::fromPEMString($str_in,  $driver, 'check_error');
+
 
         $str_out = $key_pair->toPEMString();
 
