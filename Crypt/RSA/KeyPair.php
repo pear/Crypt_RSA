@@ -440,7 +440,7 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
             }
 
             // try to create public key object
-            $public_key = &new Crypt_RSA_Key($rsa_attrs['n'], $rsa_attrs['e'], 'public', $wrapper_name, $error_handler);
+            $public_key = new Crypt_RSA_Key($rsa_attrs['n'], $rsa_attrs['e'], 'public', $wrapper_name, $error_handler);
             if ($public_key->isError()) {
                 // error during creating public object
                 $this->pushError($public_key->getLastError());
@@ -448,7 +448,7 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
             }
 
             // try to create private key object
-            $private_key = &new Crypt_RSA_Key($rsa_attrs['n'], $rsa_attrs['d'], 'private', $wrapper_name, $error_handler);
+            $private_key = new Crypt_RSA_Key($rsa_attrs['n'], $rsa_attrs['d'], 'private', $wrapper_name, $error_handler);
             if ($private_key->isError()) {
                 // error during creating private key object
                 $this->pushError($private_key->getLastError());
@@ -486,7 +486,7 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
      */
     function &factory($key_len, $wrapper_name = 'default', $error_handler = '', $random_generator = null)
     {
-        $obj = &new Crypt_RSA_KeyPair($key_len, $wrapper_name, $error_handler, $random_generator);
+        $obj = new Crypt_RSA_KeyPair($key_len, $wrapper_name, $error_handler, $random_generator);
         if ($obj->isError()) {
             // error during creating a new object. Return PEAR_Error object
             return $obj->getLastError();
@@ -589,7 +589,7 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
         $d = $this->_attrs['d'];
 
         // try to create public key object
-        $obj = &new Crypt_RSA_Key($n, $e, 'public', $this->_math_obj->getWrapperName(), $this->_error_handler);
+        $obj = new Crypt_RSA_Key($n, $e, 'public', $this->_math_obj->getWrapperName(), $this->_error_handler);
         if ($obj->isError()) {
             // error during creating public object
             $this->pushError($obj->getLastError());
@@ -598,7 +598,7 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
         $this->_public_key = &$obj;
 
         // try to create private key object
-        $obj = &new Crypt_RSA_Key($n, $d, 'private', $this->_math_obj->getWrapperName(), $this->_error_handler);
+        $obj = new Crypt_RSA_Key($n, $d, 'private', $this->_math_obj->getWrapperName(), $this->_error_handler);
         if ($obj->isError()) {
             // error during creating private key object
             $this->pushError($obj->getLastError());
@@ -704,7 +704,7 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
                 $error_handler = $this->_error_handler;
             }
         }
-        $err_handler = &new Crypt_RSA_ErrorHandler;
+        $err_handler = new Crypt_RSA_ErrorHandler;
         $err_handler->setErrorHandler($error_handler);
 
         // search for base64-encoded private key
@@ -740,7 +740,7 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
         }
 
         // create Crypt_RSA_KeyPair object.
-        $keypair = &new Crypt_RSA_KeyPair($rsa_attrs, $wrapper_name, $error_handler);
+        $keypair = new Crypt_RSA_KeyPair($rsa_attrs, $wrapper_name, $error_handler);
         if ($keypair->isError()) {
             return $keypair->getLastError();
         }

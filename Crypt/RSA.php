@@ -225,7 +225,7 @@ class Crypt_RSA extends Crypt_RSA_ErrorHandler
      */
     function &factory($params = null, $wrapper_name = 'default', $error_handler = '')
     {
-        $obj = &new Crypt_RSA($params, $wrapper_name, $error_handler);
+        $obj = new Crypt_RSA($params, $wrapper_name, $error_handler);
         if ($obj->isError()) {
             // error during creating a new object. Retrurn PEAR_Error object
             return $obj->getLastError();
