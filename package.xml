@@ -63,7 +63,7 @@ Bug #7253 - docblock corrections
   <optional>
    <package>
     <name>big_int</name>
-    <channel>pear.php.net</channel>
+    <channel>pecl.php.net</channel>
     <min>1.0.3</min>
    </package>
    <extension>
