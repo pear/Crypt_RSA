@@ -185,6 +185,8 @@ class Crypt_RSA extends Crypt_RSA_ErrorHandler
      */
     function Crypt_RSA($params = null, $wrapper_name = 'default', $error_handler = '')
     {
+        $this->setPublicKey(new Crypt_RSA_Key(null, null, null, null)); // This should *always* be overwritten by $params.
+
         // set error handler
         $this->setErrorHandler($error_handler);
         // try to load math wrapper
@@ -292,7 +294,7 @@ class Crypt_RSA extends Crypt_RSA_ErrorHandler
                     $this->pushError('public key must have "public" attribute', CRYPT_RSA_ERROR_WRONG_KEY_TYPE);
                     return false;
                 }
-                $this->_public_key = $params['public_key'];
+                $this->setPublicKey($params['public_key']);
             }
             else {
                 $this->pushError('wrong public key. It must be an object of Crypt_RSA_Key class', CRYPT_RSA_ERROR_WRONG_KEY);
@@ -307,6 +309,10 @@ class Crypt_RSA extends Crypt_RSA_ErrorHandler
             $this->_hash_func = $params['hash_func'];
         }
         return true; // all ok
+    }
+
+    function setPublicKey($public_key) {
+        $this->_public_key = $public_key;
     }
 
     /**
@@ -499,10 +505,12 @@ class Crypt_RSA extends Crypt_RSA_ErrorHandler
         if (is_null($public_key)) {
             $public_key = $this->_public_key;
         }
+
         else if (!Crypt_RSA_Key::isValid($public_key)) {
             $this->pushError('invalid public key. It must be an object of Crypt_RSA_Key class', CRYPT_RSA_ERROR_WRONG_KEY);
             return null;
         }
+
         if ($public_key->getKeyType() != 'public') {
             $this->pushError('validating key must be public', CRYPT_RSA_ERROR_NEED_PUB_KEY);
             return null;
