@@ -8,7 +8,7 @@
     ],
     "autoload": {
         "psr-0": {
-            "Crypt_RSA": "./"
+            "Crypt": "./"
         }
     },
     "description": "More info available on: http://pear.php.net/package/Crypt_RSA",
